@@ -7,7 +7,6 @@ import UpcomingMatchCard from '../Components/UpcomingMatchCard'
 import LeagueCard from '../Components/LeagueCard'
 import TopStoriesCarousel from '../Components/TopStoriesCarousel'
 import MatchCenter from '../Components/MatchCenter'
-import LeagueTable from '../Components/LeagueTable'
 
 export default function Home({ featuredArticles, latestNews, liveMatches, upcomingMatches, majorLeagues }) {
   return (
@@ -132,7 +131,13 @@ export default function Home({ featuredArticles, latestNews, liveMatches, upcomi
             <h3 className="text-lg font-bold text-neutral mb-4">League Tables</h3>
             <div className="space-y-4">
               {majorLeagues.slice(0, 3).map((league) => (
-                <LeagueTable key={league.id} league={league} compact />
+                <div key={league.id} className="p-3 border border-gray-200 rounded-lg">
+                  <h4 className="font-medium text-neutral mb-2">{league.name}</h4>
+                  <p className="text-sm text-gray-500">{league.country}</p>
+                  <Link href={`/leagues/${league.id}`} className="text-primary text-sm hover:underline">
+                    View Table →
+                  </Link>
+                </div>
               ))}
             </div>
           </div>

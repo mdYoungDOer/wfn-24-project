@@ -2,97 +2,71 @@ import React from 'react'
 import { Link } from '@inertiajs/react'
 
 export default function FeaturedArticleCard({ article, isMain = false }) {
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
-
   return (
-    <Link href={`/news/${article.slug}`} className="block">
-      <div className={`card-hover ${isMain ? 'h-full' : ''}`}>
-        {/* Article Image */}
-        <div className={`relative overflow-hidden rounded-lg mb-4 ${isMain ? 'h-64' : 'h-48'}`}>
-          {article.featured_image ? (
-            <img
-              src={article.featured_image}
-              alt={article.title}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-              <span className="text-white text-4xl">⚽</span>
-            </div>
-          )}
-          
-          {/* Category Badge */}
-          {article.category_name && (
-            <div className="absolute top-3 left-3">
-              <span className="badge-primary">
-                {article.category_name}
-              </span>
-            </div>
-          )}
-          
-          {/* Featured Badge */}
-          {article.is_featured && (
-            <div className="absolute top-3 right-3">
-              <span className="badge-warning">
-                Featured
-              </span>
-            </div>
-          )}
+    <div className={`bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow ${isMain ? 'md:col-span-2' : ''}`}>
+      {/* Article Image */}
+      <div className={`relative overflow-hidden ${isMain ? 'h-64' : 'h-48'}`}>
+        <img
+          src={article.featured_image || '/images/placeholder-article.jpg'}
+          alt={article.title}
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        
+        {/* Category Badge */}
+        <div className="absolute top-4 left-4">
+          <span
+            className="px-3 py-1 text-xs font-medium text-white rounded-full"
+            style={{ backgroundColor: article.category?.color || '#e41e5b' }}
+          >
+            {article.category?.name}
+          </span>
         </div>
 
-        {/* Article Content */}
-        <div className="space-y-3">
-          {/* Title */}
-          <h3 className={`font-bold text-neutral hover:text-primary transition-colors duration-200 ${
-            isMain ? 'text-2xl' : 'text-lg'
-          }`}>
-            {article.title}
-          </h3>
-
-          {/* Excerpt */}
-          {article.excerpt && (
-            <p className="text-gray-600 line-clamp-3">
-              {article.excerpt}
-            </p>
-          )}
-
-          {/* Meta Information */}
-          <div className="flex items-center justify-between text-sm text-gray-500">
-            <div className="flex items-center space-x-4">
-              {/* Author */}
-              {article.first_name && (
-                <span>
-                  By {article.first_name} {article.last_name}
-                </span>
-              )}
-              
-              {/* Published Date */}
-              {article.published_at && (
-                <span>
-                  {formatDate(article.published_at)}
-                </span>
-              )}
-            </div>
-
-            {/* View Count */}
-            {article.view_count > 0 && (
-              <div className="flex items-center space-x-1">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <span>{article.view_count}</span>
-              </div>
-            )}
+        {/* Featured Badge */}
+        {article.is_featured && (
+          <div className="absolute top-4 right-4">
+            <span className="px-3 py-1 text-xs font-medium text-white bg-highlight rounded-full">
+              FEATURED
+            </span>
           </div>
-        </div>
+        )}
       </div>
-    </Link>
+
+      {/* Article Content */}
+      <div className="p-4">
+        {/* Meta Information */}
+        <div className="flex items-center gap-3 text-sm text-gray-500 mb-3">
+          <span>By {article.author_name || 'WFN24 Staff'}</span>
+          <span>•</span>
+          <span>{new Date(article.published_at).toLocaleDateString()}</span>
+          <span>•</span>
+          <span>{article.view_count} views</span>
+        </div>
+
+        {/* Title */}
+        <h3 className={`font-bold text-neutral mb-3 line-clamp-2 ${isMain ? 'text-xl' : 'text-lg'}`}>
+          <Link href={`/news/${article.slug}`} className="hover:text-primary">
+            {article.title}
+          </Link>
+        </h3>
+
+        {/* Excerpt */}
+        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+          {article.excerpt}
+        </p>
+
+        {/* Read More Button */}
+        <Link
+          href={`/news/${article.slug}`}
+          className="inline-flex items-center text-primary hover:text-primary/80 font-medium text-sm"
+        >
+          Read More
+          <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
+    </div>
   )
 }

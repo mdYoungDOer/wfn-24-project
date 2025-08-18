@@ -3,144 +3,106 @@ import { Link } from '@inertiajs/react'
 
 export default function UpcomingMatchCard({ match }) {
   const formatDate = (dateString) => {
-    if (!dateString) return ''
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
-
-  const formatTime = (timeString) => {
-    if (!timeString) return ''
-    return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    })
-  }
-
-  const getTimeUntilMatch = (dateString, timeString) => {
-    if (!dateString || !timeString) return ''
-    
-    const matchDateTime = new Date(`${dateString}T${timeString}`)
     const now = new Date()
-    const diff = matchDateTime - now
+    const diffTime = date - now
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    const diffHours = Math.ceil(diffTime / (1000 * 60 * 60))
+    const diffMinutes = Math.ceil(diffTime / (1000 * 60))
 
-    if (diff <= 0) return 'Starting soon'
+    if (diffDays > 1) {
+      return `${diffDays} days`
+    } else if (diffHours > 1) {
+      return `${diffHours} hours`
+    } else if (diffMinutes > 0) {
+      return `${diffMinutes} minutes`
+    } else {
+      return 'Starting soon'
+    }
+  }
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-
-    if (days > 0) return `${days}d ${hours}h`
-    if (hours > 0) return `${hours}h ${minutes}m`
-    return `${minutes}m`
+  const formatTime = (dateString) => {
+    return new Date(dateString).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
 
   return (
-    <Link href={`/match/${match.id}`} className="block">
-      <div className="card-hover p-4">
-        {/* Match Header */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <span className="badge-secondary">
-              UPCOMING
-            </span>
+    <div className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
+      {/* Match Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
+            UPCOMING
+          </span>
+          <span className="text-xs text-gray-500">
+            {formatDate(match.match_date)}
+          </span>
+        </div>
+        <span className="text-sm text-gray-500">
+          {match.league?.name}
+        </span>
+      </div>
+
+      {/* Teams */}
+      <div className="space-y-4">
+        {/* Home Team */}
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-gray-200 rounded overflow-hidden">
+            <img
+              src={match.home_team?.logo || '/images/placeholder-team.png'}
+              alt={match.home_team?.name}
+              className="w-full h-full object-cover"
+            />
           </div>
-          
-          {match.league_name && (
-            <span className="text-xs text-gray-500">
-              {match.league_name}
-            </span>
-          )}
+          <span className="font-semibold text-neutral flex-1">
+            {match.home_team?.name}
+          </span>
+          <span className="text-lg font-bold text-neutral">
+            -
+          </span>
         </div>
 
-        {/* Teams */}
-        <div className="space-y-3">
-          {/* Home Team */}
-          <div className="flex items-center space-x-2">
-            {match.home_team_logo && (
-              <img
-                src={match.home_team_logo}
-                alt={match.home_team_name}
-                className="team-logo"
-              />
-            )}
-            <span className="font-medium text-sm flex-1">
-              {match.home_team_name}
-            </span>
+        {/* Away Team */}
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-gray-200 rounded overflow-hidden">
+            <img
+              src={match.away_team?.logo || '/images/placeholder-team.png'}
+              alt={match.away_team?.name}
+              className="w-full h-full object-cover"
+            />
           </div>
-
-          {/* VS */}
-          <div className="text-center text-xs text-gray-500 font-medium">
-            VS
-          </div>
-
-          {/* Away Team */}
-          <div className="flex items-center space-x-2">
-            {match.away_team_logo && (
-              <img
-                src={match.away_team_logo}
-                alt={match.away_team_name}
-                className="team-logo"
-              />
-            )}
-            <span className="font-medium text-sm flex-1">
-              {match.away_team_name}
-            </span>
-          </div>
+          <span className="font-semibold text-neutral flex-1">
+            {match.away_team?.name}
+          </span>
+          <span className="text-lg font-bold text-neutral">
+            -
+          </span>
         </div>
+      </div>
 
-        {/* Match Details */}
-        <div className="mt-4 pt-3 border-t border-gray-100 space-y-2">
-          {/* Date and Time */}
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-500">Date</span>
-            <span className="font-medium">
-              {formatDate(match.match_date)}
-            </span>
-          </div>
-          
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-500">Time</span>
-            <span className="font-medium">
-              {formatTime(match.kickoff_time)}
-            </span>
-          </div>
-
-          {/* Countdown */}
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-500">Starts in</span>
-            <span className="font-medium text-primary">
-              {getTimeUntilMatch(match.match_date, match.kickoff_time)}
-            </span>
-          </div>
-
-          {/* Venue */}
-          {match.stadium && (
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-500">Venue</span>
-              <span className="font-medium truncate max-w-24">
-                {match.stadium}
-              </span>
-            </div>
-          )}
+      {/* Match Info */}
+      <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
+          <span>{formatTime(match.match_date)}</span>
+          <span>{match.venue}</span>
         </div>
 
         {/* League Info */}
-        {match.league_country && (
-          <div className="mt-3 pt-3 border-t border-gray-100">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-500">Country</span>
-              <span className="font-medium">
-                {match.league_country}
-              </span>
-            </div>
-          </div>
-        )}
+        <div className="flex items-center justify-between text-xs text-gray-400 mb-3">
+          <span>{match.league?.country}</span>
+          <span>{match.league?.type}</span>
+        </div>
+
+        {/* Action Button */}
+        <Link
+          href={`/matches/${match.id}`}
+          className="w-full btn-primary text-sm py-2 text-center block"
+        >
+          View Details
+        </Link>
       </div>
-    </Link>
+    </div>
   )
 }
