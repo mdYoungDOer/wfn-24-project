@@ -187,15 +187,33 @@ try {
         ON CONFLICT (email) DO NOTHING;",
         
         // Insert major leagues
-        "INSERT INTO leagues (name, country, type, season) VALUES 
-        ('Premier League', 'England', 'League', '2024/25'),
-        ('La Liga', 'Spain', 'League', '2024/25'),
-        ('Bundesliga', 'Germany', 'League', '2024/25'),
-        ('Serie A', 'Italy', 'League', '2024/25'),
-        ('Ligue 1', 'France', 'League', '2024/25'),
-        ('Champions League', 'Europe', 'Cup', '2024/25'),
-        ('Europa League', 'Europe', 'Cup', '2024/25')
-        ON CONFLICT (name, season) DO NOTHING;"
+        "INSERT INTO leagues (name, country, type, season) 
+         SELECT 'Premier League', 'England', 'League', '2024/25'
+         WHERE NOT EXISTS (SELECT 1 FROM leagues WHERE name = 'Premier League' AND season = '2024/25');",
+        
+        "INSERT INTO leagues (name, country, type, season) 
+         SELECT 'La Liga', 'Spain', 'League', '2024/25'
+         WHERE NOT EXISTS (SELECT 1 FROM leagues WHERE name = 'La Liga' AND season = '2024/25');",
+         
+        "INSERT INTO leagues (name, country, type, season) 
+         SELECT 'Bundesliga', 'Germany', 'League', '2024/25'
+         WHERE NOT EXISTS (SELECT 1 FROM leagues WHERE name = 'Bundesliga' AND season = '2024/25');",
+         
+        "INSERT INTO leagues (name, country, type, season) 
+         SELECT 'Serie A', 'Italy', 'League', '2024/25'
+         WHERE NOT EXISTS (SELECT 1 FROM leagues WHERE name = 'Serie A' AND season = '2024/25');",
+         
+        "INSERT INTO leagues (name, country, type, season) 
+         SELECT 'Ligue 1', 'France', 'League', '2024/25'
+         WHERE NOT EXISTS (SELECT 1 FROM leagues WHERE name = 'Ligue 1' AND season = '2024/25');",
+         
+        "INSERT INTO leagues (name, country, type, season) 
+         SELECT 'Champions League', 'Europe', 'Cup', '2024/25'
+         WHERE NOT EXISTS (SELECT 1 FROM leagues WHERE name = 'Champions League' AND season = '2024/25');",
+         
+        "INSERT INTO leagues (name, country, type, season) 
+         SELECT 'Europa League', 'Europe', 'Cup', '2024/25'
+         WHERE NOT EXISTS (SELECT 1 FROM leagues WHERE name = 'Europa League' AND season = '2024/25');"
     ];
     
     $successCount = 0;
