@@ -2,7 +2,7 @@
 
 namespace WFN24\Controllers;
 
-use Inertia\Inertia;
+use WFN24\Inertia\Inertia;
 use WFN24\Models\NewsArticle;
 use WFN24\Models\FootballMatch;
 use WFN24\Models\League;
