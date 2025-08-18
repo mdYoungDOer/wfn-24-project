@@ -15,31 +15,90 @@ try {
 // Start session
 session_start();
 
+// Initialize Inertia
+use WFN24\Inertia\Inertia;
+
 // Simple routing
 $router = new \Bramus\Router\Router();
 
 // Public routes
 $router->get('/', function() {
-    header('Content-Type: application/json');
-    echo json_encode([
-        'message' => 'WFN24 - World Football News 24',
-        'status' => 'running',
-        'version' => '1.0.0',
-        'environment' => $_ENV['APP_ENV'] ?? 'production',
-        'features' => [
-            'news_articles' => 'Available',
-            'live_matches' => 'Available',
-            'league_tables' => 'Available',
-            'team_profiles' => 'Available',
-            'player_profiles' => 'Available',
-            'search' => 'Available',
-            'admin_dashboard' => 'Available'
+    // Get some sample data for the homepage
+    $featuredArticles = [
+        [
+            'id' => 1,
+            'title' => 'Premier League Title Race Heats Up',
+            'excerpt' => 'The race for the Premier League title is reaching its climax with multiple teams in contention.',
+            'featured_image' => '/images/placeholder-article.jpg',
+            'category' => ['name' => 'Breaking News', 'color' => '#e41e5b'],
+            'author_name' => 'WFN24 Staff',
+            'published_at' => date('Y-m-d H:i:s'),
+            'view_count' => 1250,
+            'is_featured' => true
         ],
-        'database' => [
-            'host' => $_ENV['DB_HOST'] ?? 'not_set',
-            'database' => $_ENV['DB_NAME'] ?? 'not_set',
-            'status' => isset($_ENV['DB_HOST']) ? 'configured' : 'not_configured'
+        [
+            'id' => 2,
+            'title' => 'Champions League Quarter-Finals Preview',
+            'excerpt' => 'Eight teams remain in the hunt for European football\'s biggest prize.',
+            'featured_image' => '/images/placeholder-article.jpg',
+            'category' => ['name' => 'Match Reports', 'color' => '#746354'],
+            'author_name' => 'WFN24 Staff',
+            'published_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
+            'view_count' => 890,
+            'is_featured' => false
         ]
+    ];
+
+    $liveMatches = [
+        [
+            'id' => 1,
+            'status' => 'LIVE',
+            'home_team' => ['name' => 'Manchester United', 'logo' => '/images/placeholder-team.png'],
+            'away_team' => ['name' => 'Liverpool', 'logo' => '/images/placeholder-team.png'],
+            'home_score' => 2,
+            'away_score' => 1,
+            'league' => ['name' => 'Premier League'],
+            'match_date' => date('Y-m-d H:i:s'),
+            'is_live' => true
+        ]
+    ];
+
+    $upcomingMatches = [
+        [
+            'id' => 2,
+            'status' => 'SCHEDULED',
+            'home_team' => ['name' => 'Arsenal', 'logo' => '/images/placeholder-team.png'],
+            'away_team' => ['name' => 'Chelsea', 'logo' => '/images/placeholder-team.png'],
+            'match_date' => date('Y-m-d H:i:s', strtotime('+2 hours')),
+            'league' => ['name' => 'Premier League'],
+            'venue' => 'Emirates Stadium'
+        ],
+        [
+            'id' => 3,
+            'status' => 'SCHEDULED',
+            'home_team' => ['name' => 'Barcelona', 'logo' => '/images/placeholder-team.png'],
+            'away_team' => ['name' => 'Real Madrid', 'logo' => '/images/placeholder-team.png'],
+            'match_date' => date('Y-m-d H:i:s', strtotime('+1 day')),
+            'league' => ['name' => 'La Liga'],
+            'venue' => 'Camp Nou'
+        ]
+    ];
+
+    $majorLeagues = [
+        ['id' => 1, 'name' => 'Premier League', 'country' => 'England', 'logo' => '/images/placeholder-league.png'],
+        ['id' => 2, 'name' => 'La Liga', 'country' => 'Spain', 'logo' => '/images/placeholder-league.png'],
+        ['id' => 3, 'name' => 'Bundesliga', 'country' => 'Germany', 'logo' => '/images/placeholder-league.png'],
+        ['id' => 4, 'name' => 'Serie A', 'country' => 'Italy', 'logo' => '/images/placeholder-league.png'],
+        ['id' => 5, 'name' => 'Ligue 1', 'country' => 'France', 'logo' => '/images/placeholder-league.png'],
+        ['id' => 6, 'name' => 'Champions League', 'country' => 'Europe', 'logo' => '/images/placeholder-league.png']
+    ];
+
+    return Inertia::render('Home', [
+        'featuredArticles' => $featuredArticles,
+        'latestNews' => array_slice($featuredArticles, 0, 6),
+        'liveMatches' => $liveMatches,
+        'upcomingMatches' => $upcomingMatches,
+        'majorLeagues' => $majorLeagues,
     ]);
 });
 
