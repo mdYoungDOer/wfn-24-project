@@ -1,0 +1,228 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for WFN24 */
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-neutral;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary hover:bg-secondary/90 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-outline {
+    @apply border border-primary text-primary hover:bg-primary hover:text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  }
+  
+  .card-hover {
+    @apply card hover:shadow-md transition-shadow duration-200;
+  }
+  
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+  }
+  
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-primary {
+    @apply badge bg-primary/10 text-primary;
+  }
+  
+  .badge-secondary {
+    @apply badge bg-secondary/10 text-secondary;
+  }
+  
+  .badge-success {
+    @apply badge bg-green-100 text-green-800;
+  }
+  
+  .badge-warning {
+    @apply badge bg-yellow-100 text-yellow-800;
+  }
+  
+  .badge-danger {
+    @apply badge bg-red-100 text-red-800;
+  }
+}
+
+/* Custom animations */
+@layer utilities {
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .animate-bounce-slow {
+    animation: bounce 2s infinite;
+  }
+}
+
+/* Loading spinner */
+.spinner {
+  @apply animate-spin rounded-full h-6 w-6 border-b-2 border-primary;
+}
+
+/* Live indicator */
+.live-indicator {
+  @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 animate-pulse;
+}
+
+.live-indicator::before {
+  content: '';
+  @apply w-2 h-2 bg-red-500 rounded-full mr-1 animate-pulse;
+}
+
+/* Match score styles */
+.match-score {
+  @apply text-2xl font-bold text-neutral;
+}
+
+.match-score-live {
+  @apply text-2xl font-bold text-red-600;
+}
+
+/* Team logo styles */
+.team-logo {
+  @apply w-8 h-8 object-contain;
+}
+
+.team-logo-large {
+  @apply w-16 h-16 object-contain;
+}
+
+/* League table styles */
+.league-table {
+  @apply w-full border-collapse;
+}
+
+.league-table th {
+  @apply bg-gray-50 text-left py-3 px-4 font-medium text-gray-700 border-b border-gray-200;
+}
+
+.league-table td {
+  @apply py-3 px-4 border-b border-gray-100;
+}
+
+.league-table tr:hover {
+  @apply bg-gray-50;
+}
+
+/* Navigation styles */
+.nav-link {
+  @apply text-gray-600 hover:text-primary transition-colors duration-200;
+}
+
+.nav-link-active {
+  @apply text-primary font-medium;
+}
+
+/* Mobile menu */
+.mobile-menu {
+  @apply fixed inset-0 z-50 bg-white transform transition-transform duration-300 ease-in-out;
+}
+
+.mobile-menu.closed {
+  @apply translate-x-full;
+}
+
+.mobile-menu.open {
+  @apply translate-x-0;
+}
+
+/* Article content styles */
+.article-content {
+  @apply prose prose-lg max-w-none;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+  @apply text-neutral font-bold;
+}
+
+.article-content p {
+  @apply text-gray-700 leading-relaxed;
+}
+
+.article-content a {
+  @apply text-primary hover:text-primary/80 underline;
+}
+
+.article-content blockquote {
+  @apply border-l-4 border-primary pl-4 italic text-gray-600;
+}
+
+.article-content ul,
+.article-content ol {
+  @apply pl-6;
+}
+
+.article-content li {
+  @apply text-gray-700;
+}
+
+/* Chart container */
+.chart-container {
+  @apply relative w-full h-64;
+}
+
+/* Search results */
+.search-result {
+  @apply p-4 border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200;
+}
+
+.search-result:last-child {
+  @apply border-b-0;
+}
+
+/* Admin dashboard */
+.admin-sidebar {
+  @apply w-64 bg-white shadow-sm border-r border-gray-200 fixed left-0 top-0 h-full z-40;
+}
+
+.admin-content {
+  @apply ml-64 p-6;
+}
+
+.admin-sidebar-link {
+  @apply flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors duration-200;
+}
+
+.admin-sidebar-link.active {
+  @apply bg-primary text-white;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    @apply transform -translate-x-full transition-transform duration-300;
+  }
+  
+  .admin-sidebar.open {
+    @apply translate-x-0;
+  }
+  
+  .admin-content {
+    @apply ml-0;
+  }
+}

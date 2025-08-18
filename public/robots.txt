@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://wfn24.com/sitemap.xml
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /ws
+
+# Allow important pages
+Allow: /news/
+Allow: /matches/
+Allow: /teams/
+Allow: /players/
+Allow: /leagues/

@@ -1,0 +1,40 @@
+{
+    "name": "wfn24/world-football-news",
+    "description": "World Football News 24 - A comprehensive football news platform",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "guzzlehttp/guzzle": "^7.8",
+        "inertiajs/inertia-php": "^0.6.9",
+        "ratchet/pawl": "^0.4.1",
+        "bramus/router": "^1.6",
+        "twig/twig": "^3.7",
+        "phpmailer/phpmailer": "^6.8",
+        "monolog/monolog": "^3.4",
+        "vlucas/phpdotenv": "^5.5",
+        "predis/predis": "^2.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "WFN24\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "WFN24\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "dev": "php -S localhost:8000 -t public",
+        "build": "npm run build",
+        "watch": "npm run dev"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

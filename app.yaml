@@ -1,0 +1,52 @@
+name: wfn24
+services:
+- name: web
+  source_dir: /
+  github:
+    repo: mdYoungDOer/wfn-24-project
+    branch: main
+  run_command: vendor/bin/heroku-php-apache2 public/
+  environment_slug: php
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  envs:
+  - key: APP_ENV
+    value: production
+  - key: APP_DEBUG
+    value: "false"
+  - key: APP_URL
+    value: https://wfn24-${APP_ID}.ondigitalocean.app
+  - key: DB_HOST
+    value: ${db.DATABASE_HOST}
+  - key: DB_PORT
+    value: ${db.DATABASE_PORT}
+  - key: DB_NAME
+    value: ${db.DATABASE_NAME}
+  - key: DB_USER
+    value: ${db.DATABASE_USERNAME}
+  - key: DB_PASSWORD
+    value: ${db.DATABASE_PASSWORD}
+  - key: SESSION_DRIVER
+    value: file
+  - key: CACHE_DRIVER
+    value: file
+  - key: LOG_LEVEL
+    value: error
+  - key: UPLOAD_MAX_SIZE
+    value: "10485760"
+  - key: ALLOWED_IMAGE_TYPES
+    value: "jpg,jpeg,png,gif,webp"
+  - key: CSRF_TOKEN_NAME
+    value: "_token"
+  - key: PASSWORD_MIN_LENGTH
+    value: "8"
+  - key: WEBSOCKET_HOST
+    value: "0.0.0.0"
+  - key: WEBSOCKET_PORT
+    value: "8080"
+
+databases:
+- name: db
+  engine: PG
+  version: "12"
+  size: db-s-1vcpu-1gb
