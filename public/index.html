@@ -12,14 +12,14 @@
     <meta property="og:title" content="WFN24 - World Football News 24">
     <meta property="og:description" content="Latest football news, live scores, match updates, and comprehensive coverage of world football">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://wfn24.com">
-    <meta property="og:image" content="https://wfn24.com/images/og-image.jpg">
+    <meta property="og:url" content="https://wfn24-project-qrml7.ondigitalocean.app">
+    <meta property="og:image" content="https://wfn24-project-qrml7.ondigitalocean.app/images/og-image.jpg">
     
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="WFN24 - World Football News 24">
     <meta name="twitter:description" content="Latest football news, live scores, match updates, and comprehensive coverage of world football">
-    <meta name="twitter:image" content="https://wfn24.com/images/twitter-image.jpg">
+    <meta name="twitter:image" content="https://wfn24-project-qrml7.ondigitalocean.app/images/twitter-image.jpg">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -31,111 +31,521 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <!-- Tailwind CSS CDN for immediate styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#e41e5b',
+                        secondary: '#9a0864',
+                        neutral: '#2c2c2c',
+                        accent: '#746354',
+                        highlight: '#a67c00'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
     
-    <!-- Vite Assets -->
-    <script type="module" src="/resources/js/app.jsx"></script>
-    <link rel="stylesheet" href="/resources/css/app.css">
-    
-    <!-- Inertia Head -->
-    @inertiaHead
-</head>
-<body>
-    <div id="app">
-        <!-- Loading indicator -->
-        <div id="loading" style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #e41e5b 0%, #9a0864 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
+    <style>
+        body {
             font-family: 'Inter', sans-serif;
-            color: white;
-        ">
-            <div style="text-align: center;">
-                <div style="
-                    width: 60px;
-                    height: 60px;
-                    border: 4px solid rgba(255,255,255,0.3);
-                    border-top: 4px solid white;
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
-                    margin: 0 auto 20px;
-                "></div>
-                <h1 style="margin: 0; font-size: 2rem; font-weight: 600;">WFN24</h1>
-                <p style="margin: 10px 0 0; opacity: 0.8;">World Football News 24</p>
-                <p style="margin: 5px 0 0; font-size: 0.9rem; opacity: 0.6;">Loading...</p>
+        }
+        
+        .btn-primary {
+            @apply bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-colors;
+        }
+        
+        .nav-link {
+            @apply text-gray-600 hover:text-primary font-medium transition-colors;
+        }
+        
+        .mobile-nav-link {
+            @apply block px-3 py-2 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md;
+        }
+        
+        .live-indicator {
+            @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600;
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center mr-3">
+                            <span class="text-white font-bold text-lg">W</span>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold text-neutral">WFN24</h1>
+                            <p class="text-xs text-gray-500">World Football News</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/news" class="nav-link">News</a>
+                    <a href="/matches" class="nav-link">Matches</a>
+                    <a href="/leagues" class="nav-link">Leagues</a>
+                    <a href="/teams" class="nav-link">Teams</a>
+                    <a href="/players" class="nav-link">Players</a>
+                </nav>
+
+                <!-- Search Bar -->
+                <div class="hidden lg:flex items-center flex-1 max-w-md mx-8">
+                    <div class="relative w-full">
+                        <input
+                            type="text"
+                            placeholder="Search news, teams, players..."
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <a href="/login" class="text-gray-600 hover:text-primary font-medium">Login</a>
+                    <a href="/register" class="btn-primary">Sign Up</a>
+                </div>
             </div>
         </div>
-        
-        <style>
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        </style>
-    </div>
-    
-    <!-- Inertia App -->
-    @inertia
-    
-    <!-- WebSocket Client for Real-time Updates -->
-    <script>
-        // Simple WebSocket client for real-time updates
-        const ws = new WebSocket('ws://localhost:8080');
-        
-        ws.onopen = function() {
-            console.log('WebSocket connected');
-        };
-        
-        ws.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            
-            switch(data.type) {
-                case 'match_update':
-                    // Handle live match updates
-                    console.log('Match update:', data);
-                    break;
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Hero Section -->
+        <section class="mb-8">
+            <div class="relative bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="relative h-96 md:h-[500px]">
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary to-secondary"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                     
-                case 'live_match':
-                    // Handle new live matches
-                    console.log('Live match:', data);
-                    break;
+                    <!-- Content -->
+                    <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                        <div class="max-w-4xl">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="px-3 py-1 text-xs font-medium text-white rounded-full bg-primary">
+                                    Breaking News
+                                </span>
+                                <span class="px-3 py-1 text-xs font-medium text-white bg-highlight rounded-full">
+                                    FEATURED
+                                </span>
+                                <span class="text-white/80 text-sm">
+                                    Today
+                                </span>
+                            </div>
+                            
+                            <h1 class="text-2xl md:text-4xl font-bold text-white mb-3">
+                                Premier League Title Race Heats Up
+                            </h1>
+                            
+                            <p class="text-white/90 text-sm md:text-base mb-4">
+                                The race for the Premier League title is reaching its climax with multiple teams in contention for the ultimate prize.
+                            </p>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-white/80 text-sm">By WFN24 Staff</span>
+                                    <span class="text-white/60 text-sm">1,250 views</span>
+                                </div>
+                                <a href="/news/1" class="btn-primary text-sm px-4 py-2">
+                                    Read More
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Match Center -->
+        <section class="mb-8">
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="bg-gradient-to-r from-primary to-secondary text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold flex items-center">
+                            <span class="live-indicator mr-2">LIVE</span>
+                            Match Center
+                        </h2>
+                        <a href="/matches" class="text-white/80 hover:text-white font-medium">
+                            View All →
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                    <div class="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-medium text-red-600 bg-red-100 px-2 py-1 rounded">LIVE</span>
+                            <span class="text-xs text-gray-500">Premier League</span>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2 flex-1">
+                                    <div class="w-6 h-6 bg-gray-200 rounded overflow-hidden"></div>
+                                    <span class="font-medium text-sm text-neutral">Manchester United</span>
+                                </div>
+                                <span class="text-xl font-bold text-neutral">2</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2 flex-1">
+                                    <div class="w-6 h-6 bg-gray-200 rounded overflow-hidden"></div>
+                                    <span class="font-medium text-sm text-neutral">Liverpool</span>
+                                </div>
+                                <span class="text-xl font-bold text-neutral">1</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 pt-3 border-t border-gray-200">
+                            <div class="flex items-center justify-between text-xs text-gray-500">
+                                <span>20:45</span>
+                                <a href="/matches/1" class="text-primary hover:underline">Follow →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Main Content - 3 columns -->
+            <div class="lg:col-span-3">
+                <!-- Featured Articles -->
+                <section class="mb-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-neutral">Featured Stories</h2>
+                        <a href="/news" class="text-primary hover:text-primary/80 font-medium">
+                            View All News →
+                        </a>
+                    </div>
                     
-                case 'news_update':
-                    // Handle news updates
-                    console.log('News update:', data);
-                    break;
-            }
-        };
-        
-        ws.onerror = function(error) {
-            console.log('WebSocket error:', error);
-        };
-        
-        ws.onclose = function() {
-            console.log('WebSocket disconnected');
-        };
-        
-        // Hide loading indicator when page is ready
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                const loading = document.getElementById('loading');
-                if (loading) {
-                    loading.style.opacity = '0';
-                    loading.style.transition = 'opacity 0.5s ease';
-                    setTimeout(function() {
-                        loading.style.display = 'none';
-                    }, 500);
-                }
-            }, 1000);
-        });
-    </script>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                            <div class="relative h-48">
+                                <div class="absolute inset-0 bg-gradient-to-br from-primary to-secondary"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                                
+                                <div class="absolute top-4 left-4">
+                                    <span class="px-3 py-1 text-xs font-medium text-white rounded-full bg-primary">
+                                        Breaking News
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4">
+                                <div class="flex items-center gap-3 text-sm text-gray-500 mb-3">
+                                    <span>By WFN24 Staff</span>
+                                    <span>•</span>
+                                    <span>Today</span>
+                                    <span>•</span>
+                                    <span>1,250 views</span>
+                                </div>
+                                
+                                <h3 class="font-bold text-neutral mb-3 line-clamp-2">
+                                    <a href="/news/1" class="hover:text-primary">
+                                        Premier League Title Race Heats Up
+                                    </a>
+                                </h3>
+                                
+                                <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+                                    The race for the Premier League title is reaching its climax with multiple teams in contention.
+                                </p>
+                                
+                                <a href="/news/1" class="inline-flex items-center text-primary hover:text-primary/80 font-medium text-sm">
+                                    Read More
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                            <div class="relative h-48">
+                                <div class="absolute inset-0 bg-gradient-to-br from-accent to-secondary"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                                
+                                <div class="absolute top-4 left-4">
+                                    <span class="px-3 py-1 text-xs font-medium text-white rounded-full bg-accent">
+                                        Match Reports
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4">
+                                <div class="flex items-center gap-3 text-sm text-gray-500 mb-3">
+                                    <span>By WFN24 Staff</span>
+                                    <span>•</span>
+                                    <span>Yesterday</span>
+                                    <span>•</span>
+                                    <span>890 views</span>
+                                </div>
+                                
+                                <h3 class="font-bold text-neutral mb-3 line-clamp-2">
+                                    <a href="/news/2" class="hover:text-primary">
+                                        Champions League Quarter-Finals Preview
+                                    </a>
+                                </h3>
+                                
+                                <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+                                    Eight teams remain in the hunt for European football's biggest prize.
+                                </p>
+                                
+                                <a href="/news/2" class="inline-flex items-center text-primary hover:text-primary/80 font-medium text-sm">
+                                    Read More
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Latest News -->
+                <section class="mb-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-neutral">Latest News</h2>
+                        <a href="/news" class="text-primary hover:text-primary/80 font-medium">
+                            View All →
+                        </a>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex gap-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex-shrink-0 w-24 h-24 bg-gray-200 rounded-lg overflow-hidden"></div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-1 text-xs font-medium text-white rounded bg-primary">
+                                        Breaking News
+                                    </span>
+                                    <span class="text-sm text-gray-500">Today</span>
+                                </div>
+                                <h3 class="font-semibold text-neutral mb-2 line-clamp-2">
+                                    <a href="/news/1" class="hover:text-primary">
+                                        Premier League Title Race Heats Up
+                                    </a>
+                                </h3>
+                                <p class="text-gray-600 text-sm line-clamp-2">
+                                    The race for the Premier League title is reaching its climax with multiple teams in contention.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex-shrink-0 w-24 h-24 bg-gray-200 rounded-lg overflow-hidden"></div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-1 text-xs font-medium text-white rounded bg-accent">
+                                        Match Reports
+                                    </span>
+                                    <span class="text-sm text-gray-500">Yesterday</span>
+                                </div>
+                                <h3 class="font-semibold text-neutral mb-2 line-clamp-2">
+                                    <a href="/news/2" class="hover:text-primary">
+                                        Champions League Quarter-Finals Preview
+                                    </a>
+                                </h3>
+                                <p class="text-gray-600 text-sm line-clamp-2">
+                                    Eight teams remain in the hunt for European football's biggest prize.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Sidebar - 1 column -->
+            <div class="lg:col-span-1">
+                <!-- Live Matches Sidebar -->
+                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <h3 class="text-lg font-bold text-neutral mb-4 flex items-center">
+                        <span class="live-indicator mr-2">LIVE</span>
+                        Live Matches
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-medium text-red-600 bg-red-100 px-2 py-1 rounded">LIVE</span>
+                                <span class="text-xs text-gray-500">Premier League</span>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2 flex-1">
+                                        <div class="w-5 h-5 bg-gray-200 rounded overflow-hidden"></div>
+                                        <span class="font-medium text-sm text-neutral truncate">Manchester United</span>
+                                    </div>
+                                    <span class="text-lg font-bold text-neutral">2</span>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2 flex-1">
+                                        <div class="w-5 h-5 bg-gray-200 rounded overflow-hidden"></div>
+                                        <span class="font-medium text-sm text-neutral truncate">Liverpool</span>
+                                    </div>
+                                    <span class="text-lg font-bold text-neutral">1</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-2 pt-2 border-t border-gray-200">
+                                <div class="flex items-center justify-between text-xs text-gray-500">
+                                    <span>20:45</span>
+                                    <a href="/matches/1" class="text-primary hover:underline">Follow →</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Major Leagues -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-bold text-neutral mb-4">Major Leagues</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="/leagues/1" class="block">
+                            <div class="bg-white rounded-lg shadow-sm p-3 hover:shadow-md transition-shadow border border-gray-200">
+                                <div class="flex items-center justify-center mb-3">
+                                    <div class="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
+                                        <span class="text-2xl">🏆</span>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <h4 class="font-semibold text-neutral text-sm mb-1 line-clamp-2">Premier League</h4>
+                                    <p class="text-xs text-gray-500 mb-2">England</p>
+                                    <span class="inline-block px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded">League</span>
+                                </div>
+                            </div>
+                        </a>
+                        
+                        <a href="/leagues/2" class="block">
+                            <div class="bg-white rounded-lg shadow-sm p-3 hover:shadow-md transition-shadow border border-gray-200">
+                                <div class="flex items-center justify-center mb-3">
+                                    <div class="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
+                                        <span class="text-2xl">🏆</span>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <h4 class="font-semibold text-neutral text-sm mb-1 line-clamp-2">La Liga</h4>
+                                    <p class="text-xs text-gray-500 mb-2">Spain</p>
+                                    <span class="inline-block px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded">League</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <section class="mt-12">
+            <div class="bg-gradient-to-r from-primary to-secondary text-white rounded-lg p-8">
+                <h2 class="text-2xl font-bold mb-6 text-center">WFN24 Stats</h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold mb-2">100+</div>
+                        <div class="text-white/80">News Articles</div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="text-3xl font-bold mb-2">5</div>
+                        <div class="text-white/80">Live Matches</div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="text-3xl font-bold mb-2">7</div>
+                        <div class="text-white/80">Leagues Covered</div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="text-3xl font-bold mb-2">24/7</div>
+                        <div class="text-white/80">News Coverage</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-neutral text-white mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Brand -->
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center mr-3">
+                            <span class="text-white font-bold text-lg">W</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">WFN24</h3>
+                            <p class="text-sm text-gray-400">World Football News 24</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        Your comprehensive source for football news, live scores, match updates, and everything football.
+                    </p>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="/news" class="text-gray-400 hover:text-white">Latest News</a></li>
+                        <li><a href="/matches" class="text-gray-400 hover:text-white">Live Matches</a></li>
+                        <li><a href="/leagues" class="text-gray-400 hover:text-white">League Tables</a></li>
+                        <li><a href="/teams" class="text-gray-400 hover:text-white">Teams</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="/contact" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                        <li><a href="/about" class="text-gray-400 hover:text-white">About WFN24</a></li>
+                        <li><a href="/privacy" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                        <li><a href="/terms" class="text-gray-400 hover:text-white">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2024 WFN24. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

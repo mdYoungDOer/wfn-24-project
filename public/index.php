@@ -15,91 +15,37 @@ try {
 // Start session
 session_start();
 
-// Initialize Inertia
-use WFN24\Inertia\Inertia;
-
 // Simple routing
 $router = new \Bramus\Router\Router();
 
 // Public routes
 $router->get('/', function() {
-    // Get some sample data for the homepage
-    $featuredArticles = [
-        [
-            'id' => 1,
-            'title' => 'Premier League Title Race Heats Up',
-            'excerpt' => 'The race for the Premier League title is reaching its climax with multiple teams in contention.',
-            'featured_image' => '/images/placeholder-article.jpg',
-            'category' => ['name' => 'Breaking News', 'color' => '#e41e5b'],
-            'author_name' => 'WFN24 Staff',
-            'published_at' => date('Y-m-d H:i:s'),
-            'view_count' => 1250,
-            'is_featured' => true
-        ],
-        [
-            'id' => 2,
-            'title' => 'Champions League Quarter-Finals Preview',
-            'excerpt' => 'Eight teams remain in the hunt for European football\'s biggest prize.',
-            'featured_image' => '/images/placeholder-article.jpg',
-            'category' => ['name' => 'Match Reports', 'color' => '#746354'],
-            'author_name' => 'WFN24 Staff',
-            'published_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
-            'view_count' => 890,
-            'is_featured' => false
-        ]
-    ];
-
-    $liveMatches = [
-        [
-            'id' => 1,
-            'status' => 'LIVE',
-            'home_team' => ['name' => 'Manchester United', 'logo' => '/images/placeholder-team.png'],
-            'away_team' => ['name' => 'Liverpool', 'logo' => '/images/placeholder-team.png'],
-            'home_score' => 2,
-            'away_score' => 1,
-            'league' => ['name' => 'Premier League'],
-            'match_date' => date('Y-m-d H:i:s'),
-            'is_live' => true
-        ]
-    ];
-
-    $upcomingMatches = [
-        [
-            'id' => 2,
-            'status' => 'SCHEDULED',
-            'home_team' => ['name' => 'Arsenal', 'logo' => '/images/placeholder-team.png'],
-            'away_team' => ['name' => 'Chelsea', 'logo' => '/images/placeholder-team.png'],
-            'match_date' => date('Y-m-d H:i:s', strtotime('+2 hours')),
-            'league' => ['name' => 'Premier League'],
-            'venue' => 'Emirates Stadium'
-        ],
-        [
-            'id' => 3,
-            'status' => 'SCHEDULED',
-            'home_team' => ['name' => 'Barcelona', 'logo' => '/images/placeholder-team.png'],
-            'away_team' => ['name' => 'Real Madrid', 'logo' => '/images/placeholder-team.png'],
-            'match_date' => date('Y-m-d H:i:s', strtotime('+1 day')),
-            'league' => ['name' => 'La Liga'],
-            'venue' => 'Camp Nou'
-        ]
-    ];
-
-    $majorLeagues = [
-        ['id' => 1, 'name' => 'Premier League', 'country' => 'England', 'logo' => '/images/placeholder-league.png'],
-        ['id' => 2, 'name' => 'La Liga', 'country' => 'Spain', 'logo' => '/images/placeholder-league.png'],
-        ['id' => 3, 'name' => 'Bundesliga', 'country' => 'Germany', 'logo' => '/images/placeholder-league.png'],
-        ['id' => 4, 'name' => 'Serie A', 'country' => 'Italy', 'logo' => '/images/placeholder-league.png'],
-        ['id' => 5, 'name' => 'Ligue 1', 'country' => 'France', 'logo' => '/images/placeholder-league.png'],
-        ['id' => 6, 'name' => 'Champions League', 'country' => 'Europe', 'logo' => '/images/placeholder-league.png']
-    ];
-
-    return Inertia::render('Home', [
-        'featuredArticles' => $featuredArticles,
-        'latestNews' => array_slice($featuredArticles, 0, 6),
-        'liveMatches' => $liveMatches,
-        'upcomingMatches' => $upcomingMatches,
-        'majorLeagues' => $majorLeagues,
-    ]);
+    // Serve the static HTML file for now
+    $htmlFile = __DIR__ . '/index.html';
+    if (file_exists($htmlFile)) {
+        header('Content-Type: text/html; charset=utf-8');
+        readfile($htmlFile);
+    } else {
+        // Fallback to basic HTML
+        echo '<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>WFN24 - World Football News 24</title>
+            <script src="https://cdn.tailwindcss.com"></script>
+        </head>
+        <body class="bg-gray-50">
+            <div class="min-h-screen flex items-center justify-center">
+                <div class="text-center">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">WFN24</h1>
+                    <p class="text-xl text-gray-600 mb-8">World Football News 24</p>
+                    <p class="text-gray-500">Loading the world-class football platform...</p>
+                </div>
+            </div>
+        </body>
+        </html>';
+    }
 });
 
 $router->get('/health', function() {
