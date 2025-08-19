@@ -41,6 +41,11 @@
         .admin-card { transition: all 0.3s ease; }
         .admin-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.closed { transform: translateX(-100%); }
+        .modal { backdrop-filter: blur(5px); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -68,29 +73,35 @@
                 
                 <!-- Navigation -->
                 <nav class="hidden lg:flex space-x-8">
-                    <a href="#" class="text-gray-700 hover:text-primary font-semibold transition-colors duration-200 flex items-center space-x-1">
+                    <a href="#" onclick="showTab('dashboard')" class="nav-link text-gray-700 hover:text-primary font-semibold transition-colors duration-200 flex items-center space-x-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                         </svg>
                         <span>Dashboard</span>
                     </a>
-                    <a href="#" class="text-gray-700 hover:text-primary font-semibold transition-colors duration-200 flex items-center space-x-1">
+                    <a href="#" onclick="showTab('articles')" class="nav-link text-gray-700 hover:text-primary font-semibold transition-colors duration-200 flex items-center space-x-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
                         </svg>
                         <span>Articles</span>
                     </a>
-                    <a href="#" class="text-gray-700 hover:text-primary font-semibold transition-colors duration-200 flex items-center space-x-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
-                        <span>Users</span>
-                    </a>
-                    <a href="#" class="text-gray-700 hover:text-primary font-semibold transition-colors duration-200 flex items-center space-x-1">
+                    <a href="#" onclick="showTab('matches')" class="nav-link text-gray-700 hover:text-primary font-semibold transition-colors duration-200 flex items-center space-x-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                         <span>Matches</span>
+                    </a>
+                    <a href="#" onclick="showTab('teams')" class="nav-link text-gray-700 hover:text-primary font-semibold transition-colors duration-200 flex items-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        <span>Teams</span>
+                    </a>
+                    <a href="#" onclick="showTab('users')" class="nav-link text-gray-700 hover:text-primary font-semibold transition-colors duration-200 flex items-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                        <span>Users</span>
                     </a>
                 </nav>
                 
@@ -98,6 +109,244 @@
                 <div class="flex items-center space-x-4">
                     <div id="userInfo" class="hidden">
                         <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center text-white font-bold text-lg" id="userInitials">A</div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900" id="userName">Admin User</p>
+                                <p class="text-xs text-gray-500" id="userRole">Administrator</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Notifications -->
+                    <button class="relative p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM10.5 3.75a6 6 0 00-6 6v3.75a6 6 0 001.5 4.5v3.75a1.5 1.5 0 001.5 1.5h9a1.5 1.5 0 001.5-1.5v-3.75a6 6 0 001.5-4.5V9.75a6 6 0 00-6-6z"></path>
+                        </svg>
+                        <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400"></span>
+                    </button>
+                    
+                    <!-- View Site Button -->
+                    <a href="/" target="_blank" class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                        <span>View Site</span>
+                    </a>
+                    
+                    <!-- Logout Button -->
+                    <button onclick="logout()" class="text-gray-500 hover:text-red-600 transition-colors duration-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex h-screen bg-gray-50">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 bg-white shadow-lg lg:block hidden">
+            <div class="p-6">
+                <div class="space-y-4">
+                    <a href="#" onclick="showTab('dashboard')" class="sidebar-link flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                        <span class="font-medium text-gray-700">Dashboard</span>
+                    </a>
+                    <a href="#" onclick="showTab('articles')" class="sidebar-link flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                        </svg>
+                        <span class="font-medium text-gray-700">Articles</span>
+                    </a>
+                    <a href="#" onclick="showTab('matches')" class="sidebar-link flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span class="font-medium text-gray-700">Matches</span>
+                    </a>
+                    <a href="#" onclick="showTab('teams')" class="sidebar-link flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        <span class="font-medium text-gray-700">Teams</span>
+                    </a>
+                    <a href="#" onclick="showTab('users')" class="sidebar-link flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                        <span class="font-medium text-gray-700">Users</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 overflow-auto">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content active p-6">
+                <!-- Welcome Section -->
+                <div class="mb-8">
+                    <div class="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h1 class="text-4xl font-bold mb-2">Welcome back, Admin!</h1>
+                                <p class="text-xl opacity-90" id="currentDateTime">Loading...</p>
+                                <p class="text-lg opacity-80 mt-2">Manage your football news platform with ease</p>
+                            </div>
+                            <div class="hidden lg:block">
+                                <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="admin-card bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Articles</p>
+                                <p class="text-3xl font-bold text-gray-900" id="totalArticles">0</p>
+                                <p class="text-sm text-green-600 flex items-center mt-1">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                    </svg>
+                                    +12% this week
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Live Matches</p>
+                                <p class="text-3xl font-bold text-gray-900" id="liveMatches">0</p>
+                                <p class="text-sm text-red-600 flex items-center mt-1">
+                                    <span class="w-2 h-2 bg-red-500 rounded-full mr-2 live-indicator"></span>
+                                    Currently live
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Users</p>
+                                <p class="text-3xl font-bold text-gray-900" id="totalUsers">0</p>
+                                <p class="text-sm text-green-600 flex items-center mt-1">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                    </svg>
+                                    +5% this month
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Teams</p>
+                                <p class="text-3xl font-bold text-gray-900" id="totalTeams">0</p>
+                                <p class="text-sm text-blue-600 flex items-center mt-1">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                    </svg>
+                                    +3% this week
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="admin-card bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                        <div class="space-y-3">
+                            <button onclick="showTab('articles'); openCreateModal('article')" class="w-full bg-gradient-to-r from-primary to-secondary text-white p-3 rounded-lg font-medium hover:opacity-90 transition-opacity duration-200 flex items-center justify-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                <span>Create New Article</span>
+                            </button>
+                            <button onclick="showTab('matches')" class="w-full bg-gray-100 text-gray-700 p-3 rounded-lg font-medium hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                                <span>View Live Matches</span>
+                            </button>
+                            <button onclick="showTab('users')" class="w-full bg-gray-100 text-gray-700 p-3 rounded-lg font-medium hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                </svg>
+                                <span>Manage Users</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="admin-card bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                        <div class="space-y-4" id="recentActivity">
+                            <!-- Activity items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Articles -->
+                <div class="admin-card bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Recent Articles</h3>
+                        <button onclick="showTab('articles')" class="text-primary hover:text-secondary font-medium transition-colors duration-200">View All</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Title</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Author</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Date</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentArticlesTable">
+                                <!-- Articles will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
                             <div class="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
                                 <span class="text-white text-sm font-bold" id="userInitial"></span>
                             </div>
@@ -561,22 +810,6 @@
             .catch(error => console.error('Logout error:', error));
         });
 
-        // Quick action buttons
-        document.getElementById('createArticleBtn').addEventListener('click', function() {
-            alert('Create Article functionality will be implemented next!');
-        });
-
-        document.getElementById('manageUsersBtn').addEventListener('click', function() {
-            alert('Manage Users functionality will be implemented next!');
-        });
-
-        document.getElementById('viewMatchesBtn').addEventListener('click', function() {
-            alert('View Matches functionality will be implemented next!');
-        });
-
-        document.getElementById('analyticsBtn').addEventListener('click', function() {
-            alert('Analytics functionality will be implemented next!');
-        });
-    </script>
+    <script src="/admin.js"></script>
 </body>
 </html>

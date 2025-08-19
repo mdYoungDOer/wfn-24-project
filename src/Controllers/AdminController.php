@@ -2,13 +2,14 @@
 
 namespace WFN24\Controllers;
 
-use WFN24\Config\Database;
 use WFN24\Models\NewsArticle;
-use WFN24\Models\User;
 use WFN24\Models\FootballMatch;
 use WFN24\Models\Team;
+use WFN24\Models\User;
+use WFN24\Models\Category;
 use WFN24\Models\League;
 use WFN24\Models\Player;
+use WFN24\Config\Database;
 
 class AdminController
 {
@@ -19,351 +20,581 @@ class AdminController
         $this->db = Database::getInstance();
     }
 
-    /**
-     * Admin Dashboard Overview
-     */
+    // Dashboard Overview
     public function dashboard()
     {
-        // Get analytics data
-        $stats = $this->getDashboardStats();
-        
-        // Get recent activities
-        $recentArticles = $this->getRecentArticles();
-        $recentUsers = $this->getRecentUsers();
-        $liveMatches = $this->getLiveMatches();
-        
-        return [
-            'stats' => $stats,
-            'recent_articles' => $recentArticles,
-            'recent_users' => $recentUsers,
-            'live_matches' => $liveMatches
-        ];
-    }
-
-    /**
-     * Get dashboard statistics
-     */
-    private function getDashboardStats()
-    {
-        $stats = [];
-        
-        // Total articles
-        $stmt = $this->db->getConnection()->prepare("SELECT COUNT(*) as count FROM news_articles");
-        $stmt->execute();
-        $stats['total_articles'] = $stmt->fetch()['count'];
-        
-        // Published articles
-        $stmt = $this->db->getConnection()->prepare("SELECT COUNT(*) as count FROM news_articles WHERE is_published = TRUE");
-        $stmt->execute();
-        $stats['published_articles'] = $stmt->fetch()['count'];
-        
-        // Total users
-        $stmt = $this->db->getConnection()->prepare("SELECT COUNT(*) as count FROM users");
-        $stmt->execute();
-        $stats['total_users'] = $stmt->fetch()['count'];
-        
-        // Active users (last 30 days)
-        $stmt = $this->db->getConnection()->prepare("SELECT COUNT(*) as count FROM users WHERE created_at >= NOW() - INTERVAL '30 days'");
-        $stmt->execute();
-        $stats['new_users_30_days'] = $stmt->fetch()['count'];
-        
-        // Live matches
-        $stmt = $this->db->getConnection()->prepare("SELECT COUNT(*) as count FROM matches WHERE is_live = TRUE");
-        $stmt->execute();
-        $stats['live_matches'] = $stmt->fetch()['count'];
-        
-        // Total teams
-        $stmt = $this->db->getConnection()->prepare("SELECT COUNT(*) as count FROM teams");
-        $stmt->execute();
-        $stats['total_teams'] = $stmt->fetch()['count'];
-        
-        // Total players
-        $stmt = $this->db->getConnection()->prepare("SELECT COUNT(*) as count FROM players");
-        $stmt->execute();
-        $stats['total_players'] = $stmt->fetch()['count'];
-        
-        return $stats;
-    }
-
-    /**
-     * Get recent articles
-     */
-    private function getRecentArticles($limit = 5)
-    {
-        $stmt = $this->db->getConnection()->prepare(
-            "SELECT id, title, author_name, is_published, published_at, view_count 
-             FROM news_articles 
-             ORDER BY created_at DESC 
-             LIMIT ?"
-        );
-        $stmt->execute([$limit]);
-        return $stmt->fetchAll();
-    }
-
-    /**
-     * Get recent users
-     */
-    private function getRecentUsers($limit = 5)
-    {
-        $stmt = $this->db->getConnection()->prepare(
-            "SELECT id, username, email, first_name, last_name, is_admin, created_at 
-             FROM users 
-             ORDER BY created_at DESC 
-             LIMIT ?"
-        );
-        $stmt->execute([$limit]);
-        return $stmt->fetchAll();
-    }
-
-    /**
-     * Get live matches
-     */
-    private function getLiveMatches($limit = 5)
-    {
-        $stmt = $this->db->getConnection()->prepare(
-            "SELECT m.*, 
-                    ht.name as home_team_name, ht.logo_url as home_team_logo,
-                    at.name as away_team_name, at.logo_url as away_team_logo,
-                    l.name as league_name
-             FROM matches m
-             JOIN teams ht ON m.home_team_id = ht.id
-             JOIN teams at ON m.away_team_id = at.id
-             JOIN leagues l ON m.league_id = l.id
-             WHERE m.is_live = TRUE
-             ORDER BY m.match_date DESC
-             LIMIT ?"
-        );
-        $stmt->execute([$limit]);
-        return $stmt->fetchAll();
-    }
-
-    /**
-     * Article Management
-     */
-    public function articles($page = 1, $perPage = 20)
-    {
-        $offset = ($page - 1) * $perPage;
-        
-        // Get articles with pagination
-        $stmt = $this->db->getConnection()->prepare(
-            "SELECT na.*, c.name as category_name
-             FROM news_articles na
-             LEFT JOIN categories c ON na.category_id = c.id
-             ORDER BY na.created_at DESC
-             LIMIT ? OFFSET ?"
-        );
-        $stmt->execute([$perPage, $offset]);
-        $articles = $stmt->fetchAll();
-        
-        // Get total count
-        $stmt = $this->db->getConnection()->prepare("SELECT COUNT(*) as count FROM news_articles");
-        $stmt->execute();
-        $total = $stmt->fetch()['count'];
-        
-        return [
-            'articles' => $articles,
-            'pagination' => [
-                'current_page' => $page,
-                'per_page' => $perPage,
-                'total' => $total,
-                'total_pages' => ceil($total / $perPage)
-            ]
-        ];
-    }
-
-    /**
-     * Create/Edit Article
-     */
-    public function saveArticle($data, $id = null)
-    {
         try {
-            if ($id) {
-                // Update existing article
-                $stmt = $this->db->getConnection()->prepare(
-                    "UPDATE news_articles SET 
-                     title = ?, slug = ?, excerpt = ?, content = ?, featured_image = ?,
-                     category_id = ?, author_name = ?, is_featured = ?, is_published = ?,
-                     published_at = ?, updated_at = CURRENT_TIMESTAMP
-                     WHERE id = ?"
-                );
-                $stmt->execute([
-                    $data['title'],
-                    $data['slug'],
-                    $data['excerpt'],
-                    $data['content'],
-                    $data['featured_image'],
-                    $data['category_id'],
-                    $data['author_name'],
-                    $data['is_featured'] ? 'TRUE' : 'FALSE',
-                    $data['is_published'] ? 'TRUE' : 'FALSE',
-                    $data['published_at'],
-                    $id
-                ]);
-                return ['success' => true, 'message' => 'Article updated successfully'];
-            } else {
-                // Create new article
-                $stmt = $this->db->getConnection()->prepare(
-                    "INSERT INTO news_articles (title, slug, excerpt, content, featured_image,
-                     category_id, author_name, is_featured, is_published, published_at)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-                );
-                $stmt->execute([
-                    $data['title'],
-                    $data['slug'],
-                    $data['excerpt'],
-                    $data['content'],
-                    $data['featured_image'],
-                    $data['category_id'],
-                    $data['author_name'],
-                    $data['is_featured'] ? 'TRUE' : 'FALSE',
-                    $data['is_published'] ? 'TRUE' : 'FALSE',
-                    $data['published_at']
-                ]);
-                return ['success' => true, 'message' => 'Article created successfully'];
-            }
+            // Get statistics
+            $stats = [
+                'total_articles' => $this->getTotalArticles(),
+                'live_matches' => $this->getLiveMatchesCount(),
+                'total_users' => $this->getTotalUsers(),
+                'total_teams' => $this->getTotalTeams(),
+                'recent_articles' => $this->getRecentArticles(5),
+                'recent_activity' => $this->getRecentActivity()
+            ];
+
+            return json_encode([
+                'success' => true,
+                'data' => $stats
+            ]);
         } catch (\Exception $e) {
-            return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 
-    /**
-     * Delete Article
-     */
+    // Articles Management
+    public function getArticles($page = 1, $limit = 10, $search = '')
+    {
+        try {
+            $articleModel = new NewsArticle();
+            $articles = $articleModel->getAllWithPagination($page, $limit, $search);
+            $total = $articleModel->getTotalCount($search);
+
+            return json_encode([
+                'success' => true,
+                'data' => [
+                    'articles' => $articles,
+                    'total' => $total,
+                    'page' => $page,
+                    'limit' => $limit,
+                    'total_pages' => ceil($total / $limit)
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function createArticle($data)
+    {
+        try {
+            $articleModel = new NewsArticle();
+            
+            // Validate required fields
+            if (empty($data['title']) || empty($data['content'])) {
+                throw new \Exception('Title and content are required');
+            }
+
+            $articleData = [
+                'title' => $data['title'],
+                'content' => $data['content'],
+                'excerpt' => $data['excerpt'] ?? substr($data['content'], 0, 200),
+                'category_id' => $data['category_id'] ?? 1,
+                'author_id' => $data['author_id'] ?? 1,
+                'featured_image' => $data['featured_image'] ?? '',
+                'is_published' => $data['is_published'] ?? false,
+                'is_featured' => $data['is_featured'] ?? false,
+                'meta_title' => $data['meta_title'] ?? $data['title'],
+                'meta_description' => $data['meta_description'] ?? $data['excerpt'] ?? substr($data['content'], 0, 160)
+            ];
+
+            $articleId = $articleModel->create($articleData);
+
+            return json_encode([
+                'success' => true,
+                'data' => ['id' => $articleId],
+                'message' => 'Article created successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function updateArticle($id, $data)
+    {
+        try {
+            $articleModel = new NewsArticle();
+            
+            if (empty($data['title']) || empty($data['content'])) {
+                throw new \Exception('Title and content are required');
+            }
+
+            $articleData = [
+                'title' => $data['title'],
+                'content' => $data['content'],
+                'excerpt' => $data['excerpt'] ?? substr($data['content'], 0, 200),
+                'category_id' => $data['category_id'] ?? 1,
+                'featured_image' => $data['featured_image'] ?? '',
+                'is_published' => $data['is_published'] ?? false,
+                'is_featured' => $data['is_featured'] ?? false,
+                'meta_title' => $data['meta_title'] ?? $data['title'],
+                'meta_description' => $data['meta_description'] ?? $data['excerpt'] ?? substr($data['content'], 0, 160)
+            ];
+
+            $articleModel->update($id, $articleData);
+
+            return json_encode([
+                'success' => true,
+                'message' => 'Article updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
     public function deleteArticle($id)
     {
         try {
-            $stmt = $this->db->getConnection()->prepare("DELETE FROM news_articles WHERE id = ?");
-            $stmt->execute([$id]);
-            return ['success' => true, 'message' => 'Article deleted successfully'];
+            $articleModel = new NewsArticle();
+            $articleModel->delete($id);
+
+            return json_encode([
+                'success' => true,
+                'message' => 'Article deleted successfully'
+            ]);
         } catch (\Exception $e) {
-            return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 
-    /**
-     * User Management
-     */
-    public function users($page = 1, $perPage = 20)
-    {
-        $offset = ($page - 1) * $perPage;
-        
-        $stmt = $this->db->getConnection()->prepare(
-            "SELECT id, username, email, first_name, last_name, is_admin, is_active, created_at
-             FROM users
-             ORDER BY created_at DESC
-             LIMIT ? OFFSET ?"
-        );
-        $stmt->execute([$perPage, $offset]);
-        $users = $stmt->fetchAll();
-        
-        $stmt = $this->db->getConnection()->prepare("SELECT COUNT(*) as count FROM users");
-        $stmt->execute();
-        $total = $stmt->fetch()['count'];
-        
-        return [
-            'users' => $users,
-            'pagination' => [
-                'current_page' => $page,
-                'per_page' => $perPage,
-                'total' => $total,
-                'total_pages' => ceil($total / $perPage)
-            ]
-        ];
-    }
-
-    /**
-     * Update User Status
-     */
-    public function updateUserStatus($id, $isActive, $isAdmin = null)
+    public function getArticle($id)
     {
         try {
-            if ($isAdmin !== null) {
-                $stmt = $this->db->getConnection()->prepare(
-                    "UPDATE users SET is_active = ?, is_admin = ? WHERE id = ?"
-                );
-                $stmt->execute([$isActive ? 'TRUE' : 'FALSE', $isAdmin ? 'TRUE' : 'FALSE', $id]);
-            } else {
-                $stmt = $this->db->getConnection()->prepare(
-                    "UPDATE users SET is_active = ? WHERE id = ?"
-                );
-                $stmt->execute([$isActive ? 'TRUE' : 'FALSE', $id]);
+            $articleModel = new NewsArticle();
+            $article = $articleModel->findById($id);
+
+            if (!$article) {
+                throw new \Exception('Article not found');
             }
-            return ['success' => true, 'message' => 'User status updated successfully'];
+
+            return json_encode([
+                'success' => true,
+                'data' => $article
+            ]);
         } catch (\Exception $e) {
-            return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 
-    /**
-     * Match Management
-     */
-    public function matches($page = 1, $perPage = 20)
+    // Matches Management
+    public function getMatches($page = 1, $limit = 10, $status = '')
     {
-        $offset = ($page - 1) * $perPage;
-        
-        $stmt = $this->db->getConnection()->prepare(
-            "SELECT m.*, 
-                    ht.name as home_team_name, ht.logo_url as home_team_logo,
-                    at.name as away_team_name, at.logo_url as away_team_logo,
-                    l.name as league_name
-             FROM matches m
-             JOIN teams ht ON m.home_team_id = ht.id
-             JOIN teams at ON m.away_team_id = at.id
-             JOIN leagues l ON m.league_id = l.id
-             ORDER BY m.match_date DESC
-             LIMIT ? OFFSET ?"
+        try {
+            $matchModel = new FootballMatch();
+            $matches = $matchModel->getAllWithPagination($page, $limit, $status);
+            $total = $matchModel->getTotalCount($status);
+
+            return json_encode([
+                'success' => true,
+                'data' => [
+                    'matches' => $matches,
+                    'total' => $total,
+                    'page' => $page,
+                    'limit' => $limit,
+                    'total_pages' => ceil($total / $limit)
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function createMatch($data)
+    {
+        try {
+            $matchModel = new FootballMatch();
+            
+            if (empty($data['home_team_id']) || empty($data['away_team_id']) || empty($data['match_date'])) {
+                throw new \Exception('Home team, away team, and match date are required');
+            }
+
+            $matchData = [
+                'home_team_id' => $data['home_team_id'],
+                'away_team_id' => $data['away_team_id'],
+                'league_id' => $data['league_id'] ?? 1,
+                'match_date' => $data['match_date'],
+                'status' => $data['status'] ?? 'scheduled',
+                'home_score' => $data['home_score'] ?? null,
+                'away_score' => $data['away_score'] ?? null,
+                'venue' => $data['venue'] ?? '',
+                'referee' => $data['referee'] ?? '',
+                'attendance' => $data['attendance'] ?? null
+            ];
+
+            $matchId = $matchModel->create($matchData);
+
+            return json_encode([
+                'success' => true,
+                'data' => ['id' => $matchId],
+                'message' => 'Match created successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function updateMatch($id, $data)
+    {
+        try {
+            $matchModel = new FootballMatch();
+            
+            $matchData = [
+                'home_team_id' => $data['home_team_id'] ?? null,
+                'away_team_id' => $data['away_team_id'] ?? null,
+                'league_id' => $data['league_id'] ?? null,
+                'match_date' => $data['match_date'] ?? null,
+                'status' => $data['status'] ?? null,
+                'home_score' => $data['home_score'] ?? null,
+                'away_score' => $data['away_score'] ?? null,
+                'venue' => $data['venue'] ?? null,
+                'referee' => $data['referee'] ?? null,
+                'attendance' => $data['attendance'] ?? null
+            ];
+
+            // Remove null values
+            $matchData = array_filter($matchData, function($value) {
+                return $value !== null;
+            });
+
+            $matchModel->update($id, $matchData);
+
+            return json_encode([
+                'success' => true,
+                'message' => 'Match updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function deleteMatch($id)
+    {
+        try {
+            $matchModel = new FootballMatch();
+            $matchModel->delete($id);
+
+            return json_encode([
+                'success' => true,
+                'message' => 'Match deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    // Teams Management
+    public function getTeams($page = 1, $limit = 10, $search = '')
+    {
+        try {
+            $teamModel = new Team();
+            $teams = $teamModel->getAllWithPagination($page, $limit, $search);
+            $total = $teamModel->getTotalCount($search);
+
+            return json_encode([
+                'success' => true,
+                'data' => [
+                    'teams' => $teams,
+                    'total' => $total,
+                    'page' => $page,
+                    'limit' => $limit,
+                    'total_pages' => ceil($total / $limit)
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function createTeam($data)
+    {
+        try {
+            $teamModel = new Team();
+            
+            if (empty($data['name'])) {
+                throw new \Exception('Team name is required');
+            }
+
+            $teamData = [
+                'name' => $data['name'],
+                'short_name' => $data['short_name'] ?? substr($data['name'], 0, 3),
+                'league_id' => $data['league_id'] ?? 1,
+                'country' => $data['country'] ?? '',
+                'city' => $data['city'] ?? '',
+                'stadium' => $data['stadium'] ?? '',
+                'founded_year' => $data['founded_year'] ?? null,
+                'logo_url' => $data['logo_url'] ?? '',
+                'website' => $data['website'] ?? '',
+                'description' => $data['description'] ?? ''
+            ];
+
+            $teamId = $teamModel->create($teamData);
+
+            return json_encode([
+                'success' => true,
+                'data' => ['id' => $teamId],
+                'message' => 'Team created successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function updateTeam($id, $data)
+    {
+        try {
+            $teamModel = new Team();
+            
+            $teamData = [
+                'name' => $data['name'] ?? null,
+                'short_name' => $data['short_name'] ?? null,
+                'league_id' => $data['league_id'] ?? null,
+                'country' => $data['country'] ?? null,
+                'city' => $data['city'] ?? null,
+                'stadium' => $data['stadium'] ?? null,
+                'founded_year' => $data['founded_year'] ?? null,
+                'logo_url' => $data['logo_url'] ?? null,
+                'website' => $data['website'] ?? null,
+                'description' => $data['description'] ?? null
+            ];
+
+            // Remove null values
+            $teamData = array_filter($teamData, function($value) {
+                return $value !== null;
+            });
+
+            $teamModel->update($id, $teamData);
+
+            return json_encode([
+                'success' => true,
+                'message' => 'Team updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function deleteTeam($id)
+    {
+        try {
+            $teamModel = new Team();
+            $teamModel->delete($id);
+
+            return json_encode([
+                'success' => true,
+                'message' => 'Team deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    // Users Management
+    public function getUsers($page = 1, $limit = 10, $search = '')
+    {
+        try {
+            $userModel = new User();
+            $users = $userModel->getAllWithPagination($page, $limit, $search);
+            $total = $userModel->getTotalCount($search);
+
+            return json_encode([
+                'success' => true,
+                'data' => [
+                    'users' => $users,
+                    'total' => $total,
+                    'page' => $page,
+                    'limit' => $limit,
+                    'total_pages' => ceil($total / $limit)
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function updateUserStatus($id, $status)
+    {
+        try {
+            $userModel = new User();
+            $userModel->update($id, ['is_active' => $status === 'active']);
+
+            return json_encode([
+                'success' => true,
+                'message' => 'User status updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function deleteUser($id)
+    {
+        try {
+            $userModel = new User();
+            $userModel->delete($id);
+
+            return json_encode([
+                'success' => true,
+                'message' => 'User deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    // Helper methods for dashboard
+    private function getTotalArticles()
+    {
+        $stmt = $this->db->query("SELECT COUNT(*) as count FROM news_articles");
+        $result = $stmt->fetch();
+        return $result['count'];
+    }
+
+    private function getLiveMatchesCount()
+    {
+        $stmt = $this->db->query("SELECT COUNT(*) as count FROM matches WHERE status = 'live'");
+        $result = $stmt->fetch();
+        return $result['count'];
+    }
+
+    private function getTotalUsers()
+    {
+        $stmt = $this->db->query("SELECT COUNT(*) as count FROM users");
+        $result = $stmt->fetch();
+        return $result['count'];
+    }
+
+    private function getTotalTeams()
+    {
+        $stmt = $this->db->query("SELECT COUNT(*) as count FROM teams");
+        $result = $stmt->fetch();
+        return $result['count'];
+    }
+
+    private function getRecentArticles($limit = 5)
+    {
+        $stmt = $this->db->query(
+            "SELECT na.*, u.username as author_name, c.name as category_name 
+             FROM news_articles na 
+             LEFT JOIN users u ON na.author_id = u.id 
+             LEFT JOIN categories c ON na.category_id = c.id 
+             ORDER BY na.created_at DESC 
+             LIMIT ?",
+            [$limit]
         );
-        $stmt->execute([$perPage, $offset]);
+        return $stmt->fetchAll();
+    }
+
+    private function getRecentActivity()
+    {
+        // This would typically come from an activity log table
+        // For now, we'll return recent articles and matches
+        $activities = [];
+        
+        // Recent articles
+        $stmt = $this->db->query(
+            "SELECT 'article' as type, title as description, created_at, 'New article published' as action 
+             FROM news_articles 
+             ORDER BY created_at DESC 
+             LIMIT 3"
+        );
+        $articles = $stmt->fetchAll();
+        
+        // Recent matches
+        $stmt = $this->db->query(
+            "SELECT 'match' as type, CONCAT(ht.name, ' vs ', at.name) as description, match_date as created_at, 'Match scheduled' as action 
+             FROM matches m 
+             LEFT JOIN teams ht ON m.home_team_id = ht.id 
+             LEFT JOIN teams at ON m.away_team_id = at.id 
+             ORDER BY match_date DESC 
+             LIMIT 3"
+        );
         $matches = $stmt->fetchAll();
         
-        $stmt = $this->db->getConnection()->prepare("SELECT COUNT(*) as count FROM matches");
-        $stmt->execute();
-        $total = $stmt->fetch()['count'];
+        $activities = array_merge($articles, $matches);
+        usort($activities, function($a, $b) {
+            return strtotime($b['created_at']) - strtotime($a['created_at']);
+        });
         
-        return [
-            'matches' => $matches,
-            'pagination' => [
-                'current_page' => $page,
-                'per_page' => $perPage,
-                'total' => $total,
-                'total_pages' => ceil($total / $perPage)
-            ]
-        ];
+        return array_slice($activities, 0, 5);
     }
 
-    /**
-     * Get Categories
-     */
+    // Get categories for article form
     public function getCategories()
     {
-        $stmt = $this->db->getConnection()->prepare(
-            "SELECT id, name, slug, description FROM categories WHERE is_active = TRUE ORDER BY name"
-        );
-        $stmt->execute();
-        return $stmt->fetchAll();
+        try {
+            $categoryModel = new Category();
+            $categories = $categoryModel->getAll();
+
+            return json_encode([
+                'success' => true,
+                'data' => $categories
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
-    /**
-     * Get Teams
-     */
-    public function getTeams()
-    {
-        $stmt = $this->db->getConnection()->prepare(
-            "SELECT id, name, logo_url, country FROM teams WHERE is_active = TRUE ORDER BY name"
-        );
-        $stmt->execute();
-        return $stmt->fetchAll();
-    }
-
-    /**
-     * Get Leagues
-     */
+    // Get leagues for match/team forms
     public function getLeagues()
     {
-        $stmt = $this->db->getConnection()->prepare(
-            "SELECT id, name, logo_url, country FROM leagues WHERE is_active = TRUE ORDER BY name"
-        );
-        $stmt->execute();
-        return $stmt->fetchAll();
+        try {
+            $leagueModel = new League();
+            $leagues = $leagueModel->getAll();
+
+            return json_encode([
+                'success' => true,
+                'data' => $leagues
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 }
