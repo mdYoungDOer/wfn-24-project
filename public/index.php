@@ -785,6 +785,67 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
                     </div>
                 </section>
 
+                <!-- Transfer News Section -->
+                <section class="mb-12">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-1 h-8 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
+                            <h2 class="text-3xl font-bold text-gray-800">Transfer News</h2>
+                        </div>
+                        <a href="#" class="text-primary hover:text-secondary font-semibold flex items-center space-x-2 transition-colors">
+                            <span>View All</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden news-card hover-lift">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=300&fit=crop" alt="Transfer News" class="w-full h-48 object-cover">
+                                <div class="absolute top-4 left-4">
+                                    <span class="text-xs font-bold text-white bg-gradient-to-r from-green-500 to-green-600 px-3 py-1 rounded-full shadow-lg">TRANSFER</span>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="font-bold text-gray-800 mb-3 text-lg leading-tight">Haaland Set for Real Madrid Move in Summer 2024</h3>
+                                <p class="text-sm text-gray-600 mb-4 leading-relaxed">Manchester City striker Erling Haaland is reportedly considering a move to Real Madrid next summer, with the Spanish giants ready to activate his release clause.</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-6 h-6 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                                            <span class="text-white text-xs font-bold">T</span>
+                                        </div>
+                                        <span class="text-xs text-gray-600 font-medium">Transfer Desk</span>
+                                    </div>
+                                    <span class="text-xs text-gray-500 font-medium">2 hours ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden news-card hover-lift">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1552318965-6e6be7484ada?w=600&h=300&fit=crop" alt="Transfer News" class="w-full h-48 object-cover">
+                                <div class="absolute top-4 left-4">
+                                    <span class="text-xs font-bold text-white bg-gradient-to-r from-blue-500 to-blue-600 px-3 py-1 rounded-full shadow-lg">RUMOR</span>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="font-bold text-gray-800 mb-3 text-lg leading-tight">Mbappé Contract Extension Talks Intensify</h3>
+                                <p class="text-sm text-gray-600 mb-4 leading-relaxed">PSG and Kylian Mbappé are in advanced talks for a contract extension, with the French forward reportedly close to signing a new long-term deal.</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-6 h-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                                            <span class="text-white text-xs font-bold">F</span>
+                                        </div>
+                                        <span class="text-xs text-gray-600 font-medium">French Football</span>
+                                    </div>
+                                    <span class="text-xs text-gray-500 font-medium">4 hours ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Upcoming Matches -->
                 <section class="mb-12">
                     <div class="flex items-center justify-between mb-8">
@@ -801,6 +862,81 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         ' . $upcomingMatchesHTML . '
+                    </div>
+                </section>
+
+                <!-- League Standings Preview -->
+                <section class="mb-12">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-1 h-8 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
+                            <h2 class="text-3xl font-bold text-gray-800">League Standings</h2>
+                        </div>
+                        <a href="#" class="text-primary hover:text-secondary font-semibold flex items-center space-x-2 transition-colors">
+                            <span>View All</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                        <div class="p-6 border-b border-gray-100">
+                            <div class="flex items-center space-x-3">
+                                <img src="https://via.placeholder.com/32x32?text=PL" alt="Premier League" class="w-8 h-8 rounded">
+                                <h3 class="font-bold text-gray-800">Premier League</h3>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pos</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">P</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GD</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pts</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">1</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center space-x-3">
+                                                <img src="https://via.placeholder.com/24x24?text=MC" alt="Man City" class="w-6 h-6 rounded">
+                                                <span class="text-sm font-medium text-gray-900">Manchester City</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">20</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">+32</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">45</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">2</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center space-x-3">
+                                                <img src="https://via.placeholder.com/24x24?text=AR" alt="Arsenal" class="w-6 h-6 rounded">
+                                                <span class="text-sm font-medium text-gray-900">Arsenal</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">20</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">+25</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">43</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">3</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center space-x-3">
+                                                <img src="https://via.placeholder.com/24x24?text=AV" alt="Aston Villa" class="w-6 h-6 rounded">
+                                                <span class="text-sm font-medium text-gray-900">Aston Villa</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">20</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">+16</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">42</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -833,6 +969,55 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
                                 </div>
                             </div>
                         </div>' : '<p class="text-gray-500 text-sm text-center py-4">No live matches at the moment</p>') . '
+                    </div>
+                </section>
+
+                <!-- Top Scorers Widget -->
+                <section class="bg-white rounded-2xl shadow-lg p-6 hover-lift">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-1 h-6 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
+                        <h3 class="text-xl font-bold text-gray-800">Top Scorers</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                            <div class="w-8 h-8 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+                                <span class="text-white text-xs font-bold">1</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2">
+                                    <img src="https://via.placeholder.com/20x20?text=MC" alt="Man City" class="w-5 h-5 rounded">
+                                    <span class="text-sm font-bold text-gray-800">Erling Haaland</span>
+                                </div>
+                                <span class="text-xs text-gray-500">Manchester City</span>
+                            </div>
+                            <span class="text-lg font-bold text-gray-900">18</span>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                            <div class="w-8 h-8 bg-gradient-to-r from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
+                                <span class="text-white text-xs font-bold">2</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2">
+                                    <img src="https://via.placeholder.com/20x20?text=TH" alt="Tottenham" class="w-5 h-5 rounded">
+                                    <span class="text-sm font-bold text-gray-800">Son Heung-min</span>
+                                </div>
+                                <span class="text-xs text-gray-500">Tottenham</span>
+                            </div>
+                            <span class="text-lg font-bold text-gray-900">15</span>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                            <div class="w-8 h-8 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full flex items-center justify-center">
+                                <span class="text-white text-xs font-bold">3</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2">
+                                    <img src="https://via.placeholder.com/20x20?text=LI" alt="Liverpool" class="w-5 h-5 rounded">
+                                    <span class="text-sm font-bold text-gray-800">Mohamed Salah</span>
+                                </div>
+                                <span class="text-xs text-gray-500">Liverpool</span>
+                            </div>
+                            <span class="text-lg font-bold text-gray-900">14</span>
+                        </div>
                     </div>
                 </section>
 
@@ -911,6 +1096,20 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
                             <div class="w-2 h-2 bg-highlight rounded-full"></div>
                             <span class="text-sm font-medium text-gray-700">#WorldCup</span>
                             <span class="text-xs text-gray-500 ml-auto">1.2K</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Newsletter Signup -->
+                <section class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg hover-lift">
+                    <div class="text-center">
+                        <h3 class="text-xl font-bold mb-3">Stay Updated</h3>
+                        <p class="text-sm opacity-90 mb-4">Get the latest football news and updates delivered to your inbox</p>
+                        <div class="space-y-3">
+                            <input type="email" placeholder="Enter your email" class="w-full px-4 py-3 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-white">
+                            <button class="w-full bg-white text-blue-600 px-4 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+                                Subscribe
+                            </button>
                         </div>
                     </div>
                 </section>
