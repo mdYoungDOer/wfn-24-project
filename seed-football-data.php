@@ -6,13 +6,14 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-// Load environment variables
+// Load environment variables (try .env file first, then use platform variables)
 try {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
     $dotenv->load();
 } catch (Dotenv\Exception\InvalidPathException $e) {
-    echo "❌ .env file not found. Please ensure your environment variables are set.\n";
-    exit(1);
+    // .env file doesn't exist, which is normal on Digital Ocean App Platform
+    // Environment variables are set via platform configuration
+    echo "ℹ️  No .env file found, using environment variables from platform...\n";
 }
 
 use WFN24\Services\FootballApiService;
@@ -26,6 +27,19 @@ class FootballDataSeeder
 
     public function __construct()
     {
+        // Check if required environment variables are set
+        if (!isset($_ENV['FOOTBALL_API_KEY'])) {
+            echo "❌ FOOTBALL_API_KEY environment variable is not set.\n";
+            echo "Please configure it in your Digital Ocean App Platform environment variables.\n";
+            exit(1);
+        }
+
+        if (!isset($_ENV['DB_HOST']) || !isset($_ENV['DB_NAME']) || !isset($_ENV['DB_USER']) || !isset($_ENV['DB_PASS'])) {
+            echo "❌ Database environment variables are not set.\n";
+            echo "Please configure DB_HOST, DB_NAME, DB_USER, and DB_PASS in your Digital Ocean App Platform.\n";
+            exit(1);
+        }
+
         $this->apiService = new FootballApiService();
         $this->db = Database::getInstance();
         
@@ -41,8 +55,13 @@ class FootballDataSeeder
     public function run()
     {
         echo "🚀 Starting WFN24 Football Data Seeding...\n\n";
+        echo "📊 API Key: " . substr($_ENV['FOOTBALL_API_KEY'], 0, 10) . "...\n";
+        echo "🗄️  Database: " . $_ENV['DB_HOST'] . "/" . $_ENV['DB_NAME'] . "\n\n";
         
         try {
+            // Test database connection first
+            $this->testDatabaseConnection();
+            
             // 1. Seed Major Leagues
             $this->seedMajorLeagues();
             
@@ -64,6 +83,19 @@ class FootballDataSeeder
         } catch (Exception $e) {
             echo "❌ Seeding failed: " . $e->getMessage() . "\n";
             $this->logger->error('Seeding failed: ' . $e->getMessage());
+        }
+    }
+
+    private function testDatabaseConnection()
+    {
+        echo "🔍 Testing database connection...\n";
+        try {
+            $connection = $this->db->getConnection();
+            $stmt = $connection->query("SELECT 1");
+            echo "✅ Database connection successful!\n\n";
+        } catch (Exception $e) {
+            echo "❌ Database connection failed: " . $e->getMessage() . "\n";
+            throw $e;
         }
     }
 
