@@ -16,6 +16,8 @@ session_start();
 // Initialize services
 $apiService = new \WFN24\Services\FootballApiService();
 $db = \WFN24\Config\Database::getInstance();
+$authController = new \WFN24\Controllers\AuthController();
+$adminController = new \WFN24\Controllers\AdminController();
 
 // Fetch real data
 $liveMatches = [];
@@ -56,6 +58,211 @@ $router->get('/', function() use ($liveMatches, $upcomingMatches, $leagues, $new
     echo $html;
 });
 
+// Authentication routes
+$router->post('/auth/register', function() use ($authController) {
+    header('Content-Type: application/json');
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    $result = $authController->register($input);
+    
+    echo json_encode($result);
+});
+
+$router->post('/auth/login', function() use ($authController) {
+    header('Content-Type: application/json');
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    $result = $authController->login($input['email'], $input['password']);
+    
+    echo json_encode($result);
+});
+
+$router->post('/auth/logout', function() use ($authController) {
+    header('Content-Type: application/json');
+    
+    $result = $authController->logout();
+    echo json_encode($result);
+});
+
+$router->get('/auth/user', function() use ($authController) {
+    header('Content-Type: application/json');
+    
+    $user = $authController->getCurrentUser();
+    echo json_encode(['user' => $user]);
+});
+
+// Admin routes (require authentication and admin privileges)
+$router->get('/admin', function() use ($authController, $adminController) {
+    if (!$authController->isAuthenticated()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    if (!$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(403);
+        echo json_encode(['error' => 'Forbidden - Admin access required']);
+        return;
+    }
+    
+    header('Content-Type: application/json');
+    $dashboard = $adminController->dashboard();
+    echo json_encode($dashboard);
+});
+
+$router->get('/admin/articles', function() use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    $page = $_GET['page'] ?? 1;
+    header('Content-Type: application/json');
+    $articles = $adminController->articles($page);
+    echo json_encode($articles);
+});
+
+$router->post('/admin/articles', function() use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    header('Content-Type: application/json');
+    $result = $adminController->saveArticle($input);
+    echo json_encode($result);
+});
+
+$router->put('/admin/articles/{id}', function($id) use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    header('Content-Type: application/json');
+    $result = $adminController->saveArticle($input, $id);
+    echo json_encode($result);
+});
+
+$router->delete('/admin/articles/{id}', function($id) use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    header('Content-Type: application/json');
+    $result = $adminController->deleteArticle($id);
+    echo json_encode($result);
+});
+
+$router->get('/admin/users', function() use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    $page = $_GET['page'] ?? 1;
+    header('Content-Type: application/json');
+    $users = $adminController->users($page);
+    echo json_encode($users);
+});
+
+$router->get('/admin/matches', function() use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    $page = $_GET['page'] ?? 1;
+    header('Content-Type: application/json');
+    $matches = $adminController->matches($page);
+    echo json_encode($matches);
+});
+
+$router->get('/admin/categories', function() use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    header('Content-Type: application/json');
+    $categories = $adminController->getCategories();
+    echo json_encode($categories);
+});
+
+$router->get('/admin/teams', function() use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    header('Content-Type: application/json');
+    $teams = $adminController->getTeams();
+    echo json_encode($teams);
+});
+
+$router->get('/admin/leagues', function() use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    header('Content-Type: application/json');
+    $leagues = $adminController->getLeagues();
+    echo json_encode($leagues);
+});
+
+$router->put('/admin/users/{id}/status', function($id) use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    header('Content-Type: application/json');
+    $result = $adminController->updateUserStatus($id, $input['is_active'], $input['is_admin'] ?? null);
+    echo json_encode($result);
+});
+
+$router->put('/admin/users/{id}/admin', function($id) use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    header('Content-Type: application/json');
+    $result = $adminController->updateUserStatus($id, null, $input['is_admin']);
+    echo json_encode($result);
+});
+
+// API routes
 $router->get('/health', function() {
     header('Content-Type: application/json');
     echo json_encode([
@@ -321,8 +528,9 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
-                    <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">Login</button>
-                    <button class="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">Sign Up</button>
+                    <button id="loginBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">Login</button>
+                    <button id="signupBtn" class="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">Sign Up</button>
+                    <button id="adminBtn" class="bg-neutral text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition hidden">Admin</button>
                 </div>
                 
                 <!-- Mobile menu button -->
@@ -506,6 +714,22 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
     </footer>
 
     <script>
+        // Check authentication status on page load
+        fetch("/auth/user")
+            .then(response => response.json())
+            .then(data => {
+                if (data.user) {
+                    // User is logged in
+                    document.getElementById("loginBtn").style.display = "none";
+                    document.getElementById("signupBtn").style.display = "none";
+                    
+                    if (data.user.is_admin) {
+                        document.getElementById("adminBtn").classList.remove("hidden");
+                    }
+                }
+            })
+            .catch(error => console.error("Error checking auth status:", error));
+
         // Auto-refresh live data every 30 seconds
         setInterval(function() {
             fetch("/api/matches")
