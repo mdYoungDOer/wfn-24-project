@@ -336,6 +336,18 @@ $router->delete('/api/admin/matches/{id}', function($id) use ($authController, $
     echo $adminController->deleteMatch($id);
 });
 
+$router->get('/api/admin/matches/{id}', function($id) use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    header('Content-Type: application/json');
+    echo $adminController->getMatch($id);
+});
+
 // Teams Management
 $router->get('/api/admin/teams', function() use ($authController, $adminController) {
     if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
@@ -389,6 +401,18 @@ $router->delete('/api/admin/teams/{id}', function($id) use ($authController, $ad
     
     header('Content-Type: application/json');
     echo $adminController->deleteTeam($id);
+});
+
+$router->get('/api/admin/teams/{id}', function($id) use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    header('Content-Type: application/json');
+    echo $adminController->getTeam($id);
 });
 
 // Users Management

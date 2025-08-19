@@ -306,6 +306,28 @@ class AdminController
         }
     }
 
+    public function getMatch($id)
+    {
+        try {
+            $matchModel = new FootballMatch();
+            $match = $matchModel->findById($id);
+
+            if (!$match) {
+                throw new \Exception('Match not found');
+            }
+
+            return json_encode([
+                'success' => true,
+                'data' => $match
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
     // Teams Management
     public function getTeams($page = 1, $limit = 10, $search = '')
     {
@@ -413,6 +435,28 @@ class AdminController
             return json_encode([
                 'success' => true,
                 'message' => 'Team deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getTeam($id)
+    {
+        try {
+            $teamModel = new Team();
+            $team = $teamModel->findById($id);
+
+            if (!$team) {
+                throw new \Exception('Team not found');
+            }
+
+            return json_encode([
+                'success' => true,
+                'data' => $team
             ]);
         } catch (\Exception $e) {
             return json_encode([
