@@ -28,14 +28,44 @@ $leagues = [];
 $newsArticles = [];
 
 try {
-    // Fetch live matches
-    $liveMatches = $apiService->getLiveMatches();
+    // Fetch live matches from database
+    $stmt = $db->getConnection()->prepare(
+        "SELECT m.*, 
+                ht.name as home_team_name, ht.logo_url as home_team_logo,
+                at.name as away_team_name, at.logo_url as away_team_logo,
+                l.name as league_name, l.logo_url as league_logo
+         FROM matches m
+         LEFT JOIN teams ht ON m.home_team_id = ht.id
+         LEFT JOIN teams at ON m.away_team_id = at.id
+         LEFT JOIN leagues l ON m.league_id = l.id
+         WHERE m.status = 'LIVE' OR m.status = 'HT' OR m.status = '2H'
+         ORDER BY m.match_date DESC LIMIT 5"
+    );
+    $stmt->execute();
+    $liveMatches = $stmt->fetchAll();
     
-    // Fetch upcoming matches
-    $upcomingMatches = $apiService->getUpcomingMatches(5);
+    // Fetch upcoming matches from database
+    $stmt = $db->getConnection()->prepare(
+        "SELECT m.*, 
+                ht.name as home_team_name, ht.logo_url as home_team_logo,
+                at.name as away_team_name, at.logo_url as away_team_logo,
+                l.name as league_name, l.logo_url as league_logo
+         FROM matches m
+         LEFT JOIN teams ht ON m.home_team_id = ht.id
+         LEFT JOIN teams at ON m.away_team_id = at.id
+         LEFT JOIN leagues l ON m.league_id = l.id
+         WHERE m.match_date > NOW() AND m.status = 'SCHEDULED'
+         ORDER BY m.match_date ASC LIMIT 5"
+    );
+    $stmt->execute();
+    $upcomingMatches = $stmt->fetchAll();
     
-    // Fetch major leagues
-    $leagues = $apiService->getMajorLeagues();
+    // Fetch leagues from database
+    $stmt = $db->getConnection()->prepare(
+        "SELECT * FROM leagues WHERE is_active = TRUE ORDER BY name LIMIT 6"
+    );
+    $stmt->execute();
+    $leagues = $stmt->fetchAll();
     
     // Fetch news articles from database
     $stmt = $db->getConnection()->prepare(
@@ -58,6 +88,13 @@ $router->get('/', function() use ($liveMatches, $upcomingMatches, $leagues, $new
     
     header('Content-Type: text/html; charset=utf-8');
     echo $html;
+});
+
+$router->get('/admin', function() {
+    // Serve the admin HTML page
+    $adminHtml = file_get_contents(__DIR__ . '/admin.html');
+    header('Content-Type: text/html; charset=utf-8');
+    echo $adminHtml;
 });
 
 // Authentication routes
@@ -383,24 +420,27 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
     // Generate live matches HTML
     if (!empty($liveMatches)) {
         foreach (array_slice($liveMatches, 0, 3) as $match) {
+            $homeLogo = $match['home_team_logo'] ?: 'https://via.placeholder.com/32x32?text=' . substr($match['home_team_name'], 0, 2);
+            $awayLogo = $match['away_team_logo'] ?: 'https://via.placeholder.com/32x32?text=' . substr($match['away_team_name'], 0, 2);
+            
             $liveMatchesHTML .= '
             <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-red-500">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-semibold text-red-600 bg-red-100 px-2 py-1 rounded">LIVE</span>
-                    <span class="text-xs text-gray-500">' . $match['league']['name'] . '</span>
+                    <span class="text-xs text-gray-500">' . htmlspecialchars($match['league_name'] ?? 'Unknown League') . '</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
-                        <img src="' . $match['home_team']['logo'] . '" alt="' . $match['home_team']['name'] . '" class="w-8 h-8">
-                        <span class="font-semibold text-sm">' . $match['home_team']['name'] . '</span>
+                        <img src="' . htmlspecialchars($homeLogo) . '" alt="' . htmlspecialchars($match['home_team_name']) . '" class="w-8 h-8 rounded">
+                        <span class="font-semibold text-sm">' . htmlspecialchars($match['home_team_name']) . '</span>
                     </div>
                     <div class="text-center">
-                        <div class="text-xl font-bold text-gray-800">' . $match['home_score'] . ' - ' . $match['away_score'] . '</div>
-                        <div class="text-xs text-gray-500">' . $match['status'] . '</div>
+                        <div class="text-xl font-bold text-gray-800">' . ($match['home_score'] ?? 0) . ' - ' . ($match['away_score'] ?? 0) . '</div>
+                        <div class="text-xs text-gray-500">' . htmlspecialchars($match['status'] ?? 'LIVE') . '</div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <span class="font-semibold text-sm">' . $match['away_team']['name'] . '</span>
-                        <img src="' . $match['away_team']['logo'] . '" alt="' . $match['away_team']['name'] . '" class="w-8 h-8">
+                        <span class="font-semibold text-sm">' . htmlspecialchars($match['away_team_name']) . '</span>
+                        <img src="' . htmlspecialchars($awayLogo) . '" alt="' . htmlspecialchars($match['away_team_name']) . '" class="w-8 h-8 rounded">
                     </div>
                 </div>
                 <button class="w-full mt-3 bg-red-600 text-white text-sm font-semibold py-2 px-4 rounded hover:bg-red-700 transition">
@@ -426,25 +466,27 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
         foreach (array_slice($upcomingMatches, 0, 3) as $match) {
             $matchTime = date('H:i', strtotime($match['match_date']));
             $matchDate = date('M j', strtotime($match['match_date']));
+            $homeLogo = $match['home_team_logo'] ?: 'https://via.placeholder.com/32x32?text=' . substr($match['home_team_name'], 0, 2);
+            $awayLogo = $match['away_team_logo'] ?: 'https://via.placeholder.com/32x32?text=' . substr($match['away_team_name'], 0, 2);
             
             $upcomingMatchesHTML .= '
             <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded">UPCOMING</span>
-                    <span class="text-xs text-gray-500">' . $match['league']['name'] . '</span>
+                    <span class="text-xs text-gray-500">' . htmlspecialchars($match['league_name'] ?? 'Unknown League') . '</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
-                        <img src="' . $match['home_team']['logo'] . '" alt="' . $match['home_team']['name'] . '" class="w-8 h-8">
-                        <span class="font-semibold text-sm">' . $match['home_team']['name'] . '</span>
+                        <img src="' . htmlspecialchars($homeLogo) . '" alt="' . htmlspecialchars($match['home_team_name']) . '" class="w-8 h-8 rounded">
+                        <span class="font-semibold text-sm">' . htmlspecialchars($match['home_team_name']) . '</span>
                     </div>
                     <div class="text-center">
                         <div class="text-lg font-bold text-gray-800">' . $matchTime . '</div>
                         <div class="text-xs text-gray-500">' . $matchDate . '</div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <span class="font-semibold text-sm">' . $match['away_team']['name'] . '</span>
-                        <img src="' . $match['away_team']['logo'] . '" alt="' . $match['away_team']['name'] . '" class="w-8 h-8">
+                        <span class="font-semibold text-sm">' . htmlspecialchars($match['away_team_name']) . '</span>
+                        <img src="' . htmlspecialchars($awayLogo) . '" alt="' . htmlspecialchars($match['away_team_name']) . '" class="w-8 h-8 rounded">
                     </div>
                 </div>
                 <button class="w-full mt-3 bg-blue-600 text-white text-sm font-semibold py-2 px-4 rounded hover:bg-blue-700 transition">
@@ -457,13 +499,14 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
     // Generate leagues HTML
     if (!empty($leagues)) {
         foreach (array_slice($leagues, 0, 4) as $league) {
+            $logoUrl = $league['logo_url'] ?: 'https://via.placeholder.com/48x48?text=' . substr($league['name'], 0, 2);
             $leaguesHTML .= '
             <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition cursor-pointer">
                 <div class="flex items-center space-x-3">
-                    <img src="' . $league['logo_url'] . '" alt="' . $league['name'] . '" class="w-12 h-12 rounded">
+                    <img src="' . htmlspecialchars($logoUrl) . '" alt="' . htmlspecialchars($league['name']) . '" class="w-12 h-12 rounded">
                     <div>
-                        <h3 class="font-semibold text-gray-800">' . $league['name'] . '</h3>
-                        <p class="text-sm text-gray-500">' . $league['country'] . '</p>
+                        <h3 class="font-semibold text-gray-800">' . htmlspecialchars($league['name']) . '</h3>
+                        <p class="text-sm text-gray-500">' . htmlspecialchars($league['country'] ?? 'Unknown') . '</p>
                     </div>
                 </div>
             </div>';
