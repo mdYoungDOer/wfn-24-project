@@ -11,7 +11,7 @@ $requiredVars = [
     'DB_HOST' => 'Database Host',
     'DB_NAME' => 'Database Name', 
     'DB_USER' => 'Database User',
-    'DB_PASS' => 'Database Password'
+    'DB_PASSWORD' => 'Database Password'
 ];
 
 $missingVars = [];

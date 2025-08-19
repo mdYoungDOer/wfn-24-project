@@ -23,23 +23,23 @@ class Database
         return self::$instance;
     }
 
-    private function connect(): void
+    private function connect()
     {
-        $host = $_ENV['DB_HOST'] ?? 'localhost';
-        $port = $_ENV['DB_PORT'] ?? '5432';
-        $dbname = $_ENV['DB_NAME'] ?? 'wfn24_db';
-        $username = $_ENV['DB_USER'] ?? 'postgres';
-        $password = $_ENV['DB_PASSWORD'] ?? '';
-
-        $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};user={$username};password={$password}";
-
         try {
+            $host = $_ENV['DB_HOST'] ?? 'localhost';
+            $port = $_ENV['DB_PORT'] ?? '5432';
+            $dbname = $_ENV['DB_NAME'] ?? 'wfn24';
+            $username = $_ENV['DB_USER'] ?? 'postgres';
+            $password = $_ENV['DB_PASSWORD'] ?? '';
+
+            $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};user={$username};password={$password}";
+            
             $this->connection = new PDO($dsn);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            
         } catch (PDOException $e) {
-            throw new \Exception("Database connection failed: " . $e->getMessage());
+            throw new Exception("Database connection failed: " . $e->getMessage());
         }
     }
 

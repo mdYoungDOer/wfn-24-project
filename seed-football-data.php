@@ -34,9 +34,9 @@ class FootballDataSeeder
             exit(1);
         }
 
-        if (!isset($_ENV['DB_HOST']) || !isset($_ENV['DB_NAME']) || !isset($_ENV['DB_USER']) || !isset($_ENV['DB_PASS'])) {
+        if (!isset($_ENV['DB_HOST']) || !isset($_ENV['DB_NAME']) || !isset($_ENV['DB_USER']) || !isset($_ENV['DB_PASSWORD'])) {
             echo "❌ Database environment variables are not set.\n";
-            echo "Please configure DB_HOST, DB_NAME, DB_USER, and DB_PASS in your Digital Ocean App Platform.\n";
+            echo "Please configure DB_HOST, DB_NAME, DB_USER, and DB_PASSWORD in your Digital Ocean App Platform.\n";
             exit(1);
         }
 
