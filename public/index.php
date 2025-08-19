@@ -420,8 +420,8 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
     // Generate live matches HTML
     if (!empty($liveMatches)) {
         foreach (array_slice($liveMatches, 0, 3) as $match) {
-            $homeLogo = $match['home_team_logo'] ?: 'https://via.placeholder.com/48x48?text=' . substr($match['home_team_name'], 0, 2);
-            $awayLogo = $match['away_team_logo'] ?: 'https://via.placeholder.com/48x48?text=' . substr($match['away_team_name'], 0, 2);
+            $homeLogo = $match['home_team_logo'] ?: 'https://via.placeholder.com/48x48/4F46E5/FFFFFF?text=' . substr($match['home_team_name'], 0, 2);
+            $awayLogo = $match['away_team_logo'] ?: 'https://via.placeholder.com/48x48/DC2626/FFFFFF?text=' . substr($match['away_team_name'], 0, 2);
             
             $liveMatchesHTML .= '
             <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-red-500 match-card hover-lift">
@@ -430,21 +430,25 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
                         <div class="w-3 h-3 bg-red-500 rounded-full live-indicator"></div>
                         <span class="text-sm font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full">LIVE</span>
                     </div>
-                    <span class="text-xs text-gray-500 font-medium">' . htmlspecialchars($match['league_name'] ?? 'Unknown League') . '</span>
+                    <span class="text-xs text-gray-500 font-medium truncate max-w-24">' . htmlspecialchars($match['league_name'] ?? 'Unknown League') . '</span>
                 </div>
                 <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center space-x-4 text-center">
-                        <div class="flex flex-col items-center">
-                            <img src="' . htmlspecialchars($homeLogo) . '" alt="' . htmlspecialchars($match['home_team_name']) . '" class="w-12 h-12 rounded-full shadow-md mb-2">
-                            <span class="font-bold text-sm text-gray-800 line-clamp-2">' . htmlspecialchars($match['home_team_name']) . '</span>
+                    <div class="flex items-center space-x-3 text-center w-full">
+                        <div class="flex flex-col items-center flex-1">
+                            <div class="relative mb-2">
+                                <img src="' . htmlspecialchars($homeLogo) . '" alt="' . htmlspecialchars($match['home_team_name']) . '" class="w-12 h-12 rounded-full shadow-md object-cover" onerror="this.src=\'https://via.placeholder.com/48x48/4F46E5/FFFFFF?text=' . substr($match['home_team_name'], 0, 2) . '\'">
+                            </div>
+                            <span class="font-bold text-sm text-gray-800 line-clamp-2 text-center">' . htmlspecialchars($match['home_team_name']) . '</span>
                         </div>
-                        <div class="text-center mx-4">
-                            <div class="text-3xl font-bold text-gray-800 score-animation">' . ($match['home_score'] ?? 0) . ' - ' . ($match['away_score'] ?? 0) . '</div>
+                        <div class="text-center mx-2 flex-shrink-0">
+                            <div class="text-2xl md:text-3xl font-bold text-gray-800 score-animation">' . ($match['home_score'] ?? 0) . ' - ' . ($match['away_score'] ?? 0) . '</div>
                             <div class="text-xs text-gray-500 font-medium mt-1">' . htmlspecialchars($match['status'] ?? 'LIVE') . '</div>
                         </div>
-                        <div class="flex flex-col items-center">
-                            <img src="' . htmlspecialchars($awayLogo) . '" alt="' . htmlspecialchars($match['away_team_name']) . '" class="w-12 h-12 rounded-full shadow-md mb-2">
-                            <span class="font-bold text-sm text-gray-800 line-clamp-2">' . htmlspecialchars($match['away_team_name']) . '</span>
+                        <div class="flex flex-col items-center flex-1">
+                            <div class="relative mb-2">
+                                <img src="' . htmlspecialchars($awayLogo) . '" alt="' . htmlspecialchars($match['away_team_name']) . '" class="w-12 h-12 rounded-full shadow-md object-cover" onerror="this.src=\'https://via.placeholder.com/48x48/DC2626/FFFFFF?text=' . substr($match['away_team_name'], 0, 2) . '\'">
+                            </div>
+                            <span class="font-bold text-sm text-gray-800 line-clamp-2 text-center">' . htmlspecialchars($match['away_team_name']) . '</span>
                         </div>
                     </div>
                 </div>
@@ -508,14 +512,14 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
     // Generate leagues HTML
     if (!empty($leagues)) {
         foreach (array_slice($leagues, 0, 4) as $league) {
-            $logoUrl = $league['logo_url'] ?: 'https://via.placeholder.com/48x48?text=' . substr($league['name'], 0, 2);
+            $logoUrl = $league['logo_url'] ?: 'https://via.placeholder.com/40x40/4F46E5/FFFFFF?text=' . substr($league['name'], 0, 2);
             $leaguesHTML .= '
-            <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition cursor-pointer">
-                <div class="flex items-center space-x-3">
-                    <img src="' . htmlspecialchars($logoUrl) . '" alt="' . htmlspecialchars($league['name']) . '" class="w-12 h-12 rounded">
-                    <div>
-                        <h3 class="font-semibold text-gray-800">' . htmlspecialchars($league['name']) . '</h3>
-                        <p class="text-sm text-gray-500">' . htmlspecialchars($league['country'] ?? 'Unknown') . '</p>
+            <div class="bg-white rounded-lg shadow-md p-3 md:p-4 hover:shadow-lg transition cursor-pointer">
+                <div class="flex items-center space-x-2 md:space-x-3">
+                    <img src="' . htmlspecialchars($logoUrl) . '" alt="' . htmlspecialchars($league['name']) . '" class="w-10 h-10 md:w-12 md:h-12 rounded object-cover" onerror="this.src=\'https://via.placeholder.com/40x40/4F46E5/FFFFFF?text=' . substr($league['name'], 0, 2) . '\'">
+                    <div class="min-w-0 flex-1">
+                        <h3 class="font-semibold text-gray-800 text-sm md:text-base truncate">' . htmlspecialchars($league['name']) . '</h3>
+                        <p class="text-xs md:text-sm text-gray-500 truncate">' . htmlspecialchars($league['country'] ?? 'Unknown') . '</p>
                     </div>
                 </div>
             </div>';
@@ -527,15 +531,18 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
         $featuredArticle = array_shift($newsArticles); // Get first article as featured
         
         foreach (array_slice($newsArticles, 0, 4) as $article) {
+            $defaultImage = 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=400&fit=crop';
+            $articleImage = $article['featured_image'] ?: $defaultImage;
+            
             $newsHTML .= '
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden news-card hover-lift cursor-pointer">
                 <div class="relative">
-                    <img src="' . $article['featured_image'] . '" alt="' . $article['title'] . '" class="w-full h-56 object-cover">
+                    <img src="' . htmlspecialchars($articleImage) . '" alt="' . htmlspecialchars($article['title']) . '" class="w-full h-48 md:h-56 object-cover" onerror="this.src=\'' . $defaultImage . '\'">
                     <div class="absolute top-4 left-4">
                         <span class="text-xs font-bold text-white bg-gradient-to-r from-primary to-secondary px-3 py-1 rounded-full shadow-lg">BREAKING</span>
                     </div>
                     <div class="absolute top-4 right-4">
-                        <div class="bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded-full">
+                        <div class="bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
                             <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                             </svg>
@@ -543,15 +550,15 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
                         </div>
                     </div>
                 </div>
-                <div class="p-6">
-                    <h3 class="font-bold text-gray-800 mb-3 line-clamp-2 text-lg leading-tight">' . $article['title'] . '</h3>
-                    <p class="text-sm text-gray-600 line-clamp-3 mb-4 leading-relaxed">' . $article['excerpt'] . '</p>
+                <div class="p-4 md:p-6">
+                    <h3 class="font-bold text-gray-800 mb-3 line-clamp-2 text-base md:text-lg leading-tight">' . htmlspecialchars($article['title']) . '</h3>
+                    <p class="text-sm text-gray-600 line-clamp-3 mb-4 leading-relaxed">' . htmlspecialchars($article['excerpt']) . '</p>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-2">
                             <div class="w-6 h-6 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
                                 <span class="text-white text-xs font-bold">' . substr($article['author_name'], 0, 1) . '</span>
                             </div>
-                            <span class="text-xs text-gray-600 font-medium">' . $article['author_name'] . '</span>
+                            <span class="text-xs text-gray-600 font-medium truncate">' . htmlspecialchars($article['author_name']) . '</span>
                         </div>
                         <span class="text-xs text-gray-500 font-medium">' . date('M j', strtotime($article['published_at'])) . '</span>
                     </div>
@@ -563,33 +570,36 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
     // Generate featured article HTML
     $featuredArticleHTML = '';
     if ($featuredArticle) {
+        $defaultFeaturedImage = 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=1200&h=600&fit=crop';
+        $featuredImage = $featuredArticle['featured_image'] ?: $defaultFeaturedImage;
+        
         $featuredArticleHTML = '
         <div class="relative bg-gradient-to-r from-primary to-secondary rounded-3xl overflow-hidden shadow-2xl hover-lift">
             <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-black/40"></div>
-            <img src="' . $featuredArticle['featured_image'] . '" alt="' . $featuredArticle['title'] . '" class="w-full h-[500px] object-cover">
-            <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
-                <div class="flex items-center space-x-3 mb-4">
-                    <span class="text-sm font-bold bg-gradient-to-r from-primary to-secondary px-4 py-2 rounded-full shadow-lg">FEATURED</span>
-                    <span class="text-sm bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">BREAKING NEWS</span>
-                    <div class="bg-black/50 backdrop-blur-sm px-3 py-2 rounded-full">
-                        <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 24 24">
+            <img src="' . htmlspecialchars($featuredImage) . '" alt="' . htmlspecialchars($featuredArticle['title']) . '" class="w-full h-[400px] md:h-[500px] object-cover" onerror="this.src=\'' . $defaultFeaturedImage . '\'">
+            <div class="absolute bottom-0 left-0 right-0 p-4 md:p-8 text-white">
+                <div class="flex flex-wrap items-center gap-2 md:gap-3 mb-4">
+                    <span class="text-sm font-bold bg-gradient-to-r from-primary to-secondary px-3 md:px-4 py-2 rounded-full shadow-lg">FEATURED</span>
+                    <span class="text-sm bg-white/20 backdrop-blur-sm px-3 md:px-4 py-2 rounded-full">BREAKING NEWS</span>
+                    <div class="bg-black/50 backdrop-blur-sm px-2 md:px-3 py-2 rounded-full">
+                        <svg class="w-3 h-3 md:w-4 md:h-4 inline mr-1" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                         </svg>
                         ' . number_format($featuredArticle['view_count']) . ' views
                     </div>
                 </div>
-                <h1 class="text-4xl font-bold mb-4 leading-tight">' . $featuredArticle['title'] . '</h1>
-                <p class="text-xl mb-6 opacity-90 leading-relaxed max-w-3xl">' . $featuredArticle['excerpt'] . '</p>
-                <div class="flex items-center space-x-6">
+                <h1 class="text-2xl md:text-4xl font-bold mb-4 leading-tight">' . htmlspecialchars($featuredArticle['title']) . '</h1>
+                <p class="text-base md:text-xl mb-6 opacity-90 leading-relaxed max-w-3xl">' . htmlspecialchars($featuredArticle['excerpt']) . '</p>
+                <div class="flex flex-col md:flex-row md:items-center md:space-x-6 space-y-2 md:space-y-0">
                     <div class="flex items-center space-x-2">
-                        <div class="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
-                            <span class="text-white text-sm font-bold">' . substr($featuredArticle['author_name'], 0, 1) . '</span>
+                        <div class="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
+                            <span class="text-white text-xs md:text-sm font-bold">' . substr($featuredArticle['author_name'], 0, 1) . '</span>
                         </div>
-                        <span class="text-sm opacity-90 font-medium">By ' . $featuredArticle['author_name'] . '</span>
+                        <span class="text-sm opacity-90 font-medium">By ' . htmlspecialchars($featuredArticle['author_name']) . '</span>
                     </div>
                     <span class="text-sm opacity-75">' . date('M j, Y', strtotime($featuredArticle['published_at'])) . '</span>
                 </div>
-                <button class="mt-6 bg-white text-primary px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl">
+                <button class="mt-6 bg-white text-primary px-4 md:px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl">
                     Read Full Story
                 </button>
             </div>
@@ -653,6 +663,52 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
         .match-card:hover { transform: scale(1.02); }
         .league-card { transition: all 0.3s ease; }
         .league-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .hover-lift:hover { transform: none; }
+            .news-card:hover { transform: none; }
+            .match-card:hover { transform: none; }
+            .league-card:hover { transform: none; }
+        }
+        
+        /* Image loading improvements */
+        img { 
+            background: linear-gradient(45deg, #f3f4f6, #e5e7eb);
+            background-size: 200% 200%;
+            animation: shimmer 2s infinite;
+        }
+        
+        img[src*="placeholder"] {
+            animation: none;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        /* Better text truncation */
+        .truncate { 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            white-space: nowrap; 
+        }
+        
+        /* Improved focus states */
+        input:focus, button:focus {
+            outline: none;
+            ring: 2px;
+            ring-color: #e41e5b;
+        }
+        
+        /* Better mobile touch targets */
+        @media (max-width: 768px) {
+            button, a {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -944,28 +1000,28 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
             <!-- Sidebar -->
             <div class="lg:col-span-1 space-y-8">
                 <!-- Live Matches Widget -->
-                <section class="bg-white rounded-2xl shadow-lg p-6 hover-lift">
-                    <div class="flex items-center space-x-3 mb-6">
+                <section class="bg-white rounded-2xl shadow-lg p-4 md:p-6 hover-lift">
+                    <div class="flex items-center space-x-3 mb-4 md:mb-6">
                         <div class="w-1 h-6 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
-                        <h3 class="text-xl font-bold text-gray-800">Live Now</h3>
+                        <h3 class="text-lg md:text-xl font-bold text-gray-800">Live Now</h3>
                         <div class="w-3 h-3 bg-red-500 rounded-full live-indicator"></div>
                     </div>
                     <div class="space-y-4">
                         ' . (!empty($liveMatches) ? '
                         <div class="border-b border-gray-100 pb-4">
                             <div class="flex items-center justify-between text-sm mb-3">
-                                <span class="text-red-600 font-bold bg-red-50 px-2 py-1 rounded-full">LIVE</span>
-                                <span class="text-gray-500 font-medium">' . htmlspecialchars($liveMatches[0]['league_name'] ?? 'Unknown League') . '</span>
+                                <span class="text-red-600 font-bold bg-red-50 px-2 py-1 rounded-full text-xs">LIVE</span>
+                                <span class="text-gray-500 font-medium text-xs truncate max-w-20">' . htmlspecialchars($liveMatches[0]['league_name'] ?? 'Unknown League') . '</span>
                             </div>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <img src="' . htmlspecialchars($liveMatches[0]['home_team_logo'] ?? 'https://via.placeholder.com/24x24?text=' . substr($liveMatches[0]['home_team_name'], 0, 2)) . '" alt="' . htmlspecialchars($liveMatches[0]['home_team_name']) . '" class="w-6 h-6 rounded-full">
-                                    <span class="text-sm font-bold text-gray-800">' . htmlspecialchars($liveMatches[0]['home_team_name']) . '</span>
+                            <div class="flex items-center justify-between space-x-2">
+                                <div class="flex items-center space-x-2 flex-1">
+                                    <img src="' . htmlspecialchars($liveMatches[0]['home_team_logo'] ?? 'https://via.placeholder.com/20x20/4F46E5/FFFFFF?text=' . substr($liveMatches[0]['home_team_name'], 0, 2)) . '" alt="' . htmlspecialchars($liveMatches[0]['home_team_name']) . '" class="w-5 h-5 md:w-6 md:h-6 rounded-full object-cover" onerror="this.src=\'https://via.placeholder.com/20x20/4F46E5/FFFFFF?text=' . substr($liveMatches[0]['home_team_name'], 0, 2) . '\'">
+                                    <span class="text-xs md:text-sm font-bold text-gray-800 truncate">' . htmlspecialchars($liveMatches[0]['home_team_name']) . '</span>
                                 </div>
-                                <span class="font-bold text-lg text-gray-800 score-animation">' . ($liveMatches[0]['home_score'] ?? 0) . ' - ' . ($liveMatches[0]['away_score'] ?? 0) . '</span>
-                                <div class="flex items-center space-x-3">
-                                    <span class="text-sm font-bold text-gray-800">' . htmlspecialchars($liveMatches[0]['away_team_name']) . '</span>
-                                    <img src="' . htmlspecialchars($liveMatches[0]['away_team_logo'] ?? 'https://via.placeholder.com/24x24?text=' . substr($liveMatches[0]['away_team_name'], 0, 2)) . '" alt="' . htmlspecialchars($liveMatches[0]['away_team_name']) . '" class="w-6 h-6 rounded-full">
+                                <span class="font-bold text-base md:text-lg text-gray-800 score-animation flex-shrink-0">' . ($liveMatches[0]['home_score'] ?? 0) . ' - ' . ($liveMatches[0]['away_score'] ?? 0) . '</span>
+                                <div class="flex items-center space-x-2 flex-1 justify-end">
+                                    <span class="text-xs md:text-sm font-bold text-gray-800 truncate">' . htmlspecialchars($liveMatches[0]['away_team_name']) . '</span>
+                                    <img src="' . htmlspecialchars($liveMatches[0]['away_team_logo'] ?? 'https://via.placeholder.com/20x20/DC2626/FFFFFF?text=' . substr($liveMatches[0]['away_team_name'], 0, 2)) . '" alt="' . htmlspecialchars($liveMatches[0]['away_team_name']) . '" class="w-5 h-5 md:w-6 md:h-6 rounded-full object-cover" onerror="this.src=\'https://via.placeholder.com/20x20/DC2626/FFFFFF?text=' . substr($liveMatches[0]['away_team_name'], 0, 2) . '\'">
                                 </div>
                             </div>
                         </div>' : '<p class="text-gray-500 text-sm text-center py-4">No live matches at the moment</p>') . '
@@ -973,96 +1029,96 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
                 </section>
 
                 <!-- Top Scorers Widget -->
-                <section class="bg-white rounded-2xl shadow-lg p-6 hover-lift">
-                    <div class="flex items-center space-x-3 mb-6">
+                <section class="bg-white rounded-2xl shadow-lg p-4 md:p-6 hover-lift">
+                    <div class="flex items-center space-x-3 mb-4 md:mb-6">
                         <div class="w-1 h-6 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
-                        <h3 class="text-xl font-bold text-gray-800">Top Scorers</h3>
+                        <h3 class="text-lg md:text-xl font-bold text-gray-800">Top Scorers</h3>
                     </div>
-                    <div class="space-y-4">
-                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                            <div class="w-8 h-8 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+                    <div class="space-y-3 md:space-y-4">
+                        <div class="flex items-center space-x-2 md:space-x-3 p-2 md:p-3 bg-gray-50 rounded-xl">
+                            <div class="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center flex-shrink-0">
                                 <span class="text-white text-xs font-bold">1</span>
                             </div>
-                            <div class="flex-1">
+                            <div class="flex-1 min-w-0">
                                 <div class="flex items-center space-x-2">
-                                    <img src="https://via.placeholder.com/20x20?text=MC" alt="Man City" class="w-5 h-5 rounded">
-                                    <span class="text-sm font-bold text-gray-800">Erling Haaland</span>
+                                    <img src="https://via.placeholder.com/16x16/4F46E5/FFFFFF?text=MC" alt="Man City" class="w-4 h-4 md:w-5 md:h-5 rounded object-cover">
+                                    <span class="text-xs md:text-sm font-bold text-gray-800 truncate">Erling Haaland</span>
                                 </div>
-                                <span class="text-xs text-gray-500">Manchester City</span>
+                                <span class="text-xs text-gray-500 truncate">Manchester City</span>
                             </div>
-                            <span class="text-lg font-bold text-gray-900">18</span>
+                            <span class="text-base md:text-lg font-bold text-gray-900 flex-shrink-0">18</span>
                         </div>
-                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                            <div class="w-8 h-8 bg-gradient-to-r from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
+                        <div class="flex items-center space-x-2 md:space-x-3 p-2 md:p-3 bg-gray-50 rounded-xl">
+                            <div class="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-r from-gray-400 to-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
                                 <span class="text-white text-xs font-bold">2</span>
                             </div>
-                            <div class="flex-1">
+                            <div class="flex-1 min-w-0">
                                 <div class="flex items-center space-x-2">
-                                    <img src="https://via.placeholder.com/20x20?text=TH" alt="Tottenham" class="w-5 h-5 rounded">
-                                    <span class="text-sm font-bold text-gray-800">Son Heung-min</span>
+                                    <img src="https://via.placeholder.com/16x16/DC2626/FFFFFF?text=TH" alt="Tottenham" class="w-4 h-4 md:w-5 md:h-5 rounded object-cover">
+                                    <span class="text-xs md:text-sm font-bold text-gray-800 truncate">Son Heung-min</span>
                                 </div>
-                                <span class="text-xs text-gray-500">Tottenham</span>
+                                <span class="text-xs text-gray-500 truncate">Tottenham</span>
                             </div>
-                            <span class="text-lg font-bold text-gray-900">15</span>
+                            <span class="text-base md:text-lg font-bold text-gray-900 flex-shrink-0">15</span>
                         </div>
-                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                            <div class="w-8 h-8 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full flex items-center justify-center">
+                        <div class="flex items-center space-x-2 md:space-x-3 p-2 md:p-3 bg-gray-50 rounded-xl">
+                            <div class="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full flex items-center justify-center flex-shrink-0">
                                 <span class="text-white text-xs font-bold">3</span>
                             </div>
-                            <div class="flex-1">
+                            <div class="flex-1 min-w-0">
                                 <div class="flex items-center space-x-2">
-                                    <img src="https://via.placeholder.com/20x20?text=LI" alt="Liverpool" class="w-5 h-5 rounded">
-                                    <span class="text-sm font-bold text-gray-800">Mohamed Salah</span>
+                                    <img src="https://via.placeholder.com/16x16/059669/FFFFFF?text=LI" alt="Liverpool" class="w-4 h-4 md:w-5 md:h-5 rounded object-cover">
+                                    <span class="text-xs md:text-sm font-bold text-gray-800 truncate">Mohamed Salah</span>
                                 </div>
-                                <span class="text-xs text-gray-500">Liverpool</span>
+                                <span class="text-xs text-gray-500 truncate">Liverpool</span>
                             </div>
-                            <span class="text-lg font-bold text-gray-900">14</span>
+                            <span class="text-base md:text-lg font-bold text-gray-900 flex-shrink-0">14</span>
                         </div>
                     </div>
                 </section>
 
                 <!-- Major Leagues -->
-                <section class="bg-white rounded-2xl shadow-lg p-6 hover-lift">
-                    <div class="flex items-center space-x-3 mb-6">
+                <section class="bg-white rounded-2xl shadow-lg p-4 md:p-6 hover-lift">
+                    <div class="flex items-center space-x-3 mb-4 md:mb-6">
                         <div class="w-1 h-6 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
-                        <h3 class="text-xl font-bold text-gray-800">Top Leagues</h3>
+                        <h3 class="text-lg md:text-xl font-bold text-gray-800">Top Leagues</h3>
                     </div>
-                    <div class="space-y-4">
+                    <div class="space-y-3 md:space-y-4">
                         ' . $leaguesHTML . '
                     </div>
                 </section>
 
                 <!-- Live Stats -->
-                <section class="bg-gradient-to-r from-primary to-secondary rounded-2xl p-6 text-white shadow-lg hover-lift">
-                    <div class="flex items-center space-x-3 mb-6">
+                <section class="bg-gradient-to-r from-primary to-secondary rounded-2xl p-4 md:p-6 text-white shadow-lg hover-lift">
+                    <div class="flex items-center space-x-3 mb-4 md:mb-6">
                         <div class="w-1 h-6 bg-white rounded-full"></div>
-                        <h3 class="text-xl font-bold">Live Stats</h3>
+                        <h3 class="text-lg md:text-xl font-bold">Live Stats</h3>
                     </div>
-                    <div class="space-y-4">
+                    <div class="space-y-3 md:space-y-4">
                         <div class="flex justify-between items-center">
-                            <span class="text-sm">Live Matches</span>
-                            <span class="font-bold text-lg">' . count($liveMatches) . '</span>
+                            <span class="text-xs md:text-sm">Live Matches</span>
+                            <span class="font-bold text-base md:text-lg">' . count($liveMatches) . '</span>
                         </div>
                         <div class="w-full bg-white/20 rounded-full h-1">
                             <div class="bg-white h-1 rounded-full" style="width: ' . min(100, (count($liveMatches) / 10) * 100) . '%"></div>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-sm">Upcoming</span>
-                            <span class="font-bold text-lg">' . count($upcomingMatches) . '</span>
+                            <span class="text-xs md:text-sm">Upcoming</span>
+                            <span class="font-bold text-base md:text-lg">' . count($upcomingMatches) . '</span>
                         </div>
                         <div class="w-full bg-white/20 rounded-full h-1">
                             <div class="bg-white h-1 rounded-full" style="width: ' . min(100, (count($upcomingMatches) / 20) * 100) . '%"></div>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-sm">Leagues</span>
-                            <span class="font-bold text-lg">' . count($leagues) . '</span>
+                            <span class="text-xs md:text-sm">Leagues</span>
+                            <span class="font-bold text-base md:text-lg">' . count($leagues) . '</span>
                         </div>
                         <div class="w-full bg-white/20 rounded-full h-1">
                             <div class="bg-white h-1 rounded-full" style="width: ' . min(100, (count($leagues) / 15) * 100) . '%"></div>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-sm">News Articles</span>
-                            <span class="font-bold text-lg">' . (count($newsArticles) + ($featuredArticle ? 1 : 0)) . '</span>
+                            <span class="text-xs md:text-sm">News Articles</span>
+                            <span class="font-bold text-base md:text-lg">' . (count($newsArticles) + ($featuredArticle ? 1 : 0)) . '</span>
                         </div>
                         <div class="w-full bg-white/20 rounded-full h-1">
                             <div class="bg-white h-1 rounded-full" style="width: ' . min(100, ((count($newsArticles) + ($featuredArticle ? 1 : 0)) / 50) * 100) . '%"></div>
@@ -1071,43 +1127,43 @@ function generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArti
                 </section>
 
                 <!-- Trending Topics -->
-                <section class="bg-white rounded-2xl shadow-lg p-6 hover-lift">
-                    <div class="flex items-center space-x-3 mb-6">
+                <section class="bg-white rounded-2xl shadow-lg p-4 md:p-6 hover-lift">
+                    <div class="flex items-center space-x-3 mb-4 md:mb-6">
                         <div class="w-1 h-6 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
-                        <h3 class="text-xl font-bold text-gray-800">Trending</h3>
+                        <h3 class="text-lg md:text-xl font-bold text-gray-800">Trending</h3>
                     </div>
-                    <div class="space-y-4">
-                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
-                            <div class="w-2 h-2 bg-primary rounded-full"></div>
-                            <span class="text-sm font-medium text-gray-700">#ChampionsLeague</span>
-                            <span class="text-xs text-gray-500 ml-auto">2.1K</span>
+                    <div class="space-y-3 md:space-y-4">
+                        <div class="flex items-center space-x-2 md:space-x-3 p-2 md:p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
+                            <div class="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
+                            <span class="text-xs md:text-sm font-medium text-gray-700 truncate">#ChampionsLeague</span>
+                            <span class="text-xs text-gray-500 ml-auto flex-shrink-0">2.1K</span>
                         </div>
-                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
-                            <div class="w-2 h-2 bg-secondary rounded-full"></div>
-                            <span class="text-sm font-medium text-gray-700">#PremierLeague</span>
-                            <span class="text-xs text-gray-500 ml-auto">1.8K</span>
+                        <div class="flex items-center space-x-2 md:space-x-3 p-2 md:p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
+                            <div class="w-2 h-2 bg-secondary rounded-full flex-shrink-0"></div>
+                            <span class="text-xs md:text-sm font-medium text-gray-700 truncate">#PremierLeague</span>
+                            <span class="text-xs text-gray-500 ml-auto flex-shrink-0">1.8K</span>
                         </div>
-                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
-                            <div class="w-2 h-2 bg-accent rounded-full"></div>
-                            <span class="text-sm font-medium text-gray-700">#TransferNews</span>
-                            <span class="text-xs text-gray-500 ml-auto">1.5K</span>
+                        <div class="flex items-center space-x-2 md:space-x-3 p-2 md:p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
+                            <div class="w-2 h-2 bg-accent rounded-full flex-shrink-0"></div>
+                            <span class="text-xs md:text-sm font-medium text-gray-700 truncate">#TransferNews</span>
+                            <span class="text-xs text-gray-500 ml-auto flex-shrink-0">1.5K</span>
                         </div>
-                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
-                            <div class="w-2 h-2 bg-highlight rounded-full"></div>
-                            <span class="text-sm font-medium text-gray-700">#WorldCup</span>
-                            <span class="text-xs text-gray-500 ml-auto">1.2K</span>
+                        <div class="flex items-center space-x-2 md:space-x-3 p-2 md:p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
+                            <div class="w-2 h-2 bg-highlight rounded-full flex-shrink-0"></div>
+                            <span class="text-xs md:text-sm font-medium text-gray-700 truncate">#WorldCup</span>
+                            <span class="text-xs text-gray-500 ml-auto flex-shrink-0">1.2K</span>
                         </div>
                     </div>
                 </section>
 
                 <!-- Newsletter Signup -->
-                <section class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg hover-lift">
+                <section class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-4 md:p-6 text-white shadow-lg hover-lift">
                     <div class="text-center">
-                        <h3 class="text-xl font-bold mb-3">Stay Updated</h3>
-                        <p class="text-sm opacity-90 mb-4">Get the latest football news and updates delivered to your inbox</p>
-                        <div class="space-y-3">
-                            <input type="email" placeholder="Enter your email" class="w-full px-4 py-3 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-white">
-                            <button class="w-full bg-white text-blue-600 px-4 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+                        <h3 class="text-lg md:text-xl font-bold mb-2 md:mb-3">Stay Updated</h3>
+                        <p class="text-xs md:text-sm opacity-90 mb-3 md:mb-4">Get the latest football news and updates delivered to your inbox</p>
+                        <div class="space-y-2 md:space-y-3">
+                            <input type="email" placeholder="Enter your email" class="w-full px-3 md:px-4 py-2 md:py-3 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-white text-sm md:text-base">
+                            <button class="w-full bg-white text-blue-600 px-3 md:px-4 py-2 md:py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors text-sm md:text-base">
                                 Subscribe
                             </button>
                         </div>
