@@ -222,7 +222,7 @@ class AdminDashboard {
                         ${article.is_published ? 'Published' : 'Draft'}
                     </span>
                 </td>
-                <td class="py-4 px-4 text-sm text-gray-600">${new Date(article.published_at).toLocaleDateString()}</td>
+                                                    <td class="py-4 px-4 text-sm text-gray-600">${new Date(article.created_at || article.published_at).toLocaleDateString()}</td>
                 <td class="py-4 px-4">
                     <div class="flex space-x-2">
                         <button onclick="editArticle(${article.id})" class="text-blue-600 hover:text-blue-800">
@@ -262,10 +262,10 @@ class AdminDashboard {
                     </svg>
                 </div>
                 <div class="flex-1">
-                    <p class="text-sm font-medium text-gray-900">${activity.title}</p>
-                    <p class="text-xs text-gray-600">${activity.description}</p>
+                    <p class="text-sm font-medium text-gray-900">${activity.action || 'Activity'}</p>
+                    <p class="text-xs text-gray-600">${activity.description || 'No description'}</p>
                 </div>
-                <span class="text-xs text-gray-500">${activity.time_ago}</span>
+                <span class="text-xs text-gray-500">${new Date(activity.created_at).toLocaleDateString()}</span>
             </div>
         `).join('');
     }
@@ -321,7 +321,7 @@ class AdminDashboard {
                                             ${article.is_published ? 'Published' : 'Draft'}
                                         </span>
                                     </td>
-                                    <td class="py-4 px-6 text-sm text-gray-600">${new Date(article.published_at).toLocaleDateString()}</td>
+                                    <td class="py-4 px-6 text-sm text-gray-600">${new Date(article.created_at || article.published_at).toLocaleDateString()}</td>
                                     <td class="py-4 px-6">
                                         <div class="flex space-x-2">
                                             <button onclick="editArticle(${article.id})" class="text-blue-600 hover:text-blue-800">
@@ -658,55 +658,89 @@ function logout() {
     }
 }
 
-// Placeholder functions for CRUD operations
+// CRUD functions that call the adminCRUD instance
 function createArticle() {
-    adminDashboard.showError('Create article functionality coming soon!');
+    if (adminCRUD) {
+        adminCRUD.createArticle();
+    } else {
+        adminDashboard.showError('CRUD system not initialized');
+    }
 }
 
 function editArticle(id) {
-    adminDashboard.showError(`Edit article ${id} functionality coming soon!`);
+    if (adminCRUD) {
+        adminCRUD.editArticle(id);
+    } else {
+        adminDashboard.showError('CRUD system not initialized');
+    }
 }
 
 function deleteArticle(id) {
-    if (confirm('Are you sure you want to delete this article?')) {
-        adminDashboard.showError(`Delete article ${id} functionality coming soon!`);
+    if (adminCRUD) {
+        adminCRUD.deleteArticle(id);
+    } else {
+        adminDashboard.showError('CRUD system not initialized');
     }
 }
 
 function createMatch() {
-    adminDashboard.showError('Create match functionality coming soon!');
+    if (adminCRUD) {
+        adminCRUD.createMatch();
+    } else {
+        adminDashboard.showError('CRUD system not initialized');
+    }
 }
 
 function editMatch(id) {
-    adminDashboard.showError(`Edit match ${id} functionality coming soon!`);
+    if (adminCRUD) {
+        adminCRUD.editMatch(id);
+    } else {
+        adminDashboard.showError('CRUD system not initialized');
+    }
 }
 
 function deleteMatch(id) {
-    if (confirm('Are you sure you want to delete this match?')) {
-        adminDashboard.showError(`Delete match ${id} functionality coming soon!`);
+    if (adminCRUD) {
+        adminCRUD.deleteMatch(id);
+    } else {
+        adminDashboard.showError('CRUD system not initialized');
     }
 }
 
 function createTeam() {
-    adminDashboard.showError('Create team functionality coming soon!');
+    if (adminCRUD) {
+        adminCRUD.createTeam();
+    } else {
+        adminDashboard.showError('CRUD system not initialized');
+    }
 }
 
 function editTeam(id) {
-    adminDashboard.showError(`Edit team ${id} functionality coming soon!`);
+    if (adminCRUD) {
+        adminCRUD.editTeam(id);
+    } else {
+        adminDashboard.showError('CRUD system not initialized');
+    }
 }
 
 function deleteTeam(id) {
-    if (confirm('Are you sure you want to delete this team?')) {
-        adminDashboard.showError(`Delete team ${id} functionality coming soon!`);
+    if (adminCRUD) {
+        adminCRUD.deleteTeam(id);
+    } else {
+        adminDashboard.showError('CRUD system not initialized');
     }
 }
 
 function toggleUserStatus(id) {
-    adminDashboard.showError(`Toggle user status ${id} functionality coming soon!`);
+    if (confirm('Are you sure you want to toggle this user\'s status?')) {
+        // This will be implemented later
+        adminDashboard.showError('User status toggle functionality coming soon!');
+    }
 }
 
 function deleteUser(id) {
     if (confirm('Are you sure you want to delete this user?')) {
-        adminDashboard.showError(`Delete user ${id} functionality coming soon!`);
+        // This will be implemented later
+        adminDashboard.showError('User delete functionality coming soon!');
     }
 }

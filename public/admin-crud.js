@@ -266,6 +266,47 @@ class AdminCRUD {
         });
     }
 
+    async saveMatch(form, matchId = null) {
+        const formData = new FormData(form);
+        const data = {
+            league_id: formData.get('league_id'),
+            home_team_id: formData.get('home_team_id'),
+            away_team_id: formData.get('away_team_id'),
+            match_date: formData.get('match_date'),
+            status: formData.get('status'),
+            home_score: formData.get('home_score') ? parseInt(formData.get('home_score')) : null,
+            away_score: formData.get('away_score') ? parseInt(formData.get('away_score')) : null,
+            venue: formData.get('venue'),
+            referee: formData.get('referee'),
+            attendance: formData.get('attendance') ? parseInt(formData.get('attendance')) : null
+        };
+
+        try {
+            const url = matchId ? `/api/admin/matches/${matchId}` : '/api/admin/matches';
+            const method = matchId ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showSuccess(matchId ? 'Match updated successfully' : 'Match created successfully');
+                form.closest('.fixed').remove();
+                adminDashboard.loadMatches();
+            } else {
+                this.showError(result.error || 'Failed to save match');
+            }
+        } catch (error) {
+            this.showError('Error saving match');
+        }
+    }
+
     createArticleModal() {
         const modal = document.createElement('div');
         modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
@@ -320,8 +361,9 @@ class AdminCRUD {
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Content *</label>
-                                <div id="articleEditor" class="border border-gray-300 rounded-lg min-h-[300px]"></div>
-                                <input type="hidden" id="articleContent" name="content">
+                                <textarea id="articleContent" name="content" rows="10" required
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                          placeholder="Enter article content here..."></textarea>
                             </div>
                             <div class="flex items-center space-x-4">
                                 <label class="flex items-center">
@@ -398,7 +440,7 @@ class AdminCRUD {
         const data = {
             title: formData.get('title'),
             excerpt: formData.get('excerpt'),
-            content: document.getElementById('articleContent').value,
+            content: formData.get('content') || 'Article content will be added here.',
             category_id: formData.get('category_id'),
             featured_image: document.getElementById('articleImageUrl').value,
             is_published: document.getElementById('articlePublished').checked,
