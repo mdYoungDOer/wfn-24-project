@@ -158,25 +158,42 @@ class FootballDataSeeder
                 // Then, ensure league exists
                 $leagueId = $this->ensureLeagueExists($match['league']);
                 
-                // Finally, create/update match
+                // Check if match already exists
                 $stmt = $this->db->getConnection()->prepare(
-                    "INSERT INTO matches (api_match_id, home_team_id, away_team_id, league_id, match_date, status, home_score, away_score, venue, is_live) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)
-                     ON CONFLICT (api_match_id) 
-                     DO UPDATE SET home_score = EXCLUDED.home_score, away_score = EXCLUDED.away_score, status = EXCLUDED.status, is_live = TRUE"
+                    "SELECT id FROM matches WHERE api_match_id = ?"
                 );
+                $stmt->execute([$match['api_match_id']]);
+                $existing = $stmt->fetch();
                 
-                $stmt->execute([
-                    $match['api_match_id'],
-                    $homeTeamId,
-                    $awayTeamId,
-                    $leagueId,
-                    $match['match_date'],
-                    $match['status'],
-                    $match['home_score'],
-                    $match['away_score'],
-                    $match['venue']
-                ]);
+                if ($existing) {
+                    // Update existing match
+                    $stmt = $this->db->getConnection()->prepare(
+                        "UPDATE matches SET home_score = ?, away_score = ?, status = ?, is_live = TRUE WHERE id = ?"
+                    );
+                    $stmt->execute([
+                        $match['home_score'],
+                        $match['away_score'],
+                        $match['status'],
+                        $existing['id']
+                    ]);
+                } else {
+                    // Insert new match
+                    $stmt = $this->db->getConnection()->prepare(
+                        "INSERT INTO matches (api_match_id, home_team_id, away_team_id, league_id, match_date, status, home_score, away_score, venue, is_live) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)"
+                    );
+                    $stmt->execute([
+                        $match['api_match_id'],
+                        $homeTeamId,
+                        $awayTeamId,
+                        $leagueId,
+                        $match['match_date'],
+                        $match['status'],
+                        $match['home_score'],
+                        $match['away_score'],
+                        $match['venue']
+                    ]);
+                }
                 
                 echo "✅ Live Match: {$match['home_team']['name']} {$match['home_score']} - {$match['away_score']} {$match['away_team']['name']}\n";
                 
@@ -208,23 +225,40 @@ class FootballDataSeeder
                 // Then, ensure league exists
                 $leagueId = $this->ensureLeagueExists($match['league']);
                 
-                // Finally, create/update match
+                // Check if match already exists
                 $stmt = $this->db->getConnection()->prepare(
-                    "INSERT INTO matches (api_match_id, home_team_id, away_team_id, league_id, match_date, status, venue, is_live) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, FALSE)
-                     ON CONFLICT (api_match_id) 
-                     DO UPDATE SET match_date = EXCLUDED.match_date, status = EXCLUDED.status, venue = EXCLUDED.venue"
+                    "SELECT id FROM matches WHERE api_match_id = ?"
                 );
+                $stmt->execute([$match['api_match_id']]);
+                $existing = $stmt->fetch();
                 
-                $stmt->execute([
-                    $match['api_match_id'],
-                    $homeTeamId,
-                    $awayTeamId,
-                    $leagueId,
-                    $match['match_date'],
-                    $match['status'],
-                    $match['venue']
-                ]);
+                if ($existing) {
+                    // Update existing match
+                    $stmt = $this->db->getConnection()->prepare(
+                        "UPDATE matches SET match_date = ?, status = ?, venue = ? WHERE id = ?"
+                    );
+                    $stmt->execute([
+                        $match['match_date'],
+                        $match['status'],
+                        $match['venue'],
+                        $existing['id']
+                    ]);
+                } else {
+                    // Insert new match
+                    $stmt = $this->db->getConnection()->prepare(
+                        "INSERT INTO matches (api_match_id, home_team_id, away_team_id, league_id, match_date, status, venue, is_live) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, FALSE)"
+                    );
+                    $stmt->execute([
+                        $match['api_match_id'],
+                        $homeTeamId,
+                        $awayTeamId,
+                        $leagueId,
+                        $match['match_date'],
+                        $match['status'],
+                        $match['venue']
+                    ]);
+                }
                 
                 echo "✅ Upcoming: {$match['home_team']['name']} vs {$match['away_team']['name']} ({$match['league']['name']})\n";
                 
@@ -258,7 +292,7 @@ class FootballDataSeeder
                     $article['featured_image'],
                     $article['category_id'],
                     $article['author_name'],
-                    $article['is_featured'],
+                    $article['is_featured'] ? 'TRUE' : 'FALSE', // Convert to PostgreSQL boolean
                     $article['published_at'],
                     $article['view_count']
                 ]);
@@ -301,50 +335,89 @@ class FootballDataSeeder
 
     private function ensureTeamExists($teamData)
     {
+        // First check if team already exists
         $stmt = $this->db->getConnection()->prepare(
-            "INSERT INTO teams (name, logo_url, is_active) 
-             VALUES (?, ?, TRUE)
-             ON CONFLICT (name) 
-             DO UPDATE SET logo_url = EXCLUDED.logo_url
-             RETURNING id"
+            "SELECT id FROM teams WHERE name = ?"
         );
+        $stmt->execute([$teamData['name']]);
+        $existing = $stmt->fetch();
         
-        $stmt->execute([$teamData['name'], $teamData['logo']]);
-        $result = $stmt->fetch();
-        
-        return $result['id'];
+        if ($existing) {
+            // Update existing team
+            $stmt = $this->db->getConnection()->prepare(
+                "UPDATE teams SET logo_url = ? WHERE id = ?"
+            );
+            $stmt->execute([$teamData['logo'], $existing['id']]);
+            return $existing['id'];
+        } else {
+            // Insert new team
+            $stmt = $this->db->getConnection()->prepare(
+                "INSERT INTO teams (name, logo_url, is_active) 
+                 VALUES (?, ?, TRUE)
+                 RETURNING id"
+            );
+            $stmt->execute([$teamData['name'], $teamData['logo']]);
+            $result = $stmt->fetch();
+            return $result['id'];
+        }
     }
 
     private function ensureLeagueExists($leagueData)
     {
+        // First check if league already exists
         $stmt = $this->db->getConnection()->prepare(
-            "INSERT INTO leagues (name, country, is_active) 
-             VALUES (?, ?, TRUE)
-             ON CONFLICT (name) 
-             DO UPDATE SET country = EXCLUDED.country
-             RETURNING id"
+            "SELECT id FROM leagues WHERE name = ?"
         );
+        $stmt->execute([$leagueData['name']]);
+        $existing = $stmt->fetch();
         
-        $stmt->execute([$leagueData['name'], $leagueData['country']]);
-        $result = $stmt->fetch();
-        
-        return $result['id'];
+        if ($existing) {
+            // Update existing league
+            $stmt = $this->db->getConnection()->prepare(
+                "UPDATE leagues SET country = ? WHERE id = ?"
+            );
+            $stmt->execute([$leagueData['country'], $existing['id']]);
+            return $existing['id'];
+        } else {
+            // Insert new league
+            $stmt = $this->db->getConnection()->prepare(
+                "INSERT INTO leagues (name, country, is_active) 
+                 VALUES (?, ?, TRUE)
+                 RETURNING id"
+            );
+            $stmt->execute([$leagueData['name'], $leagueData['country']]);
+            $result = $stmt->fetch();
+            return $result['id'];
+        }
     }
 
     private function ensurePlayerExists($playerData)
     {
+        // First check if player already exists
         $stmt = $this->db->getConnection()->prepare(
-            "INSERT INTO players (name, photo_url, is_active) 
-             VALUES (?, ?, TRUE)
-             ON CONFLICT (name) 
-             DO UPDATE SET photo_url = EXCLUDED.photo_url
-             RETURNING id"
+            "SELECT id FROM players WHERE name = ?"
         );
+        $stmt->execute([$playerData['name']]);
+        $existing = $stmt->fetch();
         
-        $stmt->execute([$playerData['name'], $playerData['photo']]);
-        $result = $stmt->fetch();
-        
-        return $result['id'];
+        if ($existing) {
+            // Update existing player
+            $stmt = $this->db->getConnection()->prepare(
+                "UPDATE players SET photo_url = ? WHERE id = ?"
+            );
+            $stmt->execute([$playerData['photo'], $existing['id']]);
+            return $existing['id'];
+        } else {
+            // Insert new player
+            $stmt = $this->db->getConnection()->prepare(
+                "INSERT INTO players (name, photo_url, is_active) 
+                 VALUES (?, ?, TRUE)
+                 RETURNING id"
+            );
+            $stmt->execute([$playerData['name'], $playerData['photo']]);
+            $result = $stmt->fetch();
+            return $result['id'];
+        }
     }
 
     private function getFallbackLeagues()
