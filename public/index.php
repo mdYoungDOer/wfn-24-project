@@ -18,6 +18,8 @@ $apiService = new \WFN24\Services\FootballApiService();
 $db = \WFN24\Config\Database::getInstance();
 $authController = new \WFN24\Controllers\AuthController();
 $adminController = new \WFN24\Controllers\AdminController();
+$matchController = new \WFN24\Controllers\MatchController();
+$leagueController = new \WFN24\Controllers\LeagueController();
 
 // Fetch real data
 $liveMatches = [];
@@ -298,6 +300,63 @@ $router->get('/api/leagues', function() use ($leagues) {
         'leagues' => $leagues,
         'count' => count($leagues)
     ]);
+});
+
+// Match routes
+$router->get('/api/matches/{id}', function($id) use ($matchController) {
+    header('Content-Type: application/json');
+    $matchDetails = $matchController->getMatchDetails($id);
+    echo json_encode($matchDetails);
+});
+
+$router->get('/api/matches/live', function() use ($matchController) {
+    header('Content-Type: application/json');
+    $liveMatches = $matchController->getLiveMatches();
+    echo json_encode(['matches' => $liveMatches]);
+});
+
+$router->get('/api/matches/upcoming', function() use ($matchController) {
+    header('Content-Type: application/json');
+    $upcomingMatches = $matchController->getUpcomingMatches();
+    echo json_encode(['matches' => $upcomingMatches]);
+});
+
+// League routes
+$router->get('/api/leagues/{id}', function($id) use ($leagueController) {
+    header('Content-Type: application/json');
+    $leagueDetails = $leagueController->getLeagueDetails($id);
+    echo json_encode($leagueDetails);
+});
+
+$router->get('/api/leagues/{id}/standings', function($id) use ($leagueController) {
+    header('Content-Type: application/json');
+    $standings = $leagueController->getLeagueStandings($id);
+    echo json_encode(['standings' => $standings]);
+});
+
+$router->get('/api/leagues/{id}/top-scorers', function($id) use ($leagueController) {
+    header('Content-Type: application/json');
+    $topScorers = $leagueController->getTopScorers($id);
+    echo json_encode(['top_scorers' => $topScorers]);
+});
+
+$router->get('/api/leagues/{id}/fixtures', function($id) use ($leagueController) {
+    header('Content-Type: application/json');
+    $page = $_GET['page'] ?? 1;
+    $fixtures = $leagueController->getLeagueFixtures($id, $page);
+    echo json_encode($fixtures);
+});
+
+$router->get('/api/leagues/{id}/recent-matches', function($id) use ($leagueController) {
+    header('Content-Type: application/json');
+    $recentMatches = $leagueController->getRecentMatches($id);
+    echo json_encode(['matches' => $recentMatches]);
+});
+
+$router->get('/api/leagues/{id}/upcoming-matches', function($id) use ($leagueController) {
+    header('Content-Type: application/json');
+    $upcomingMatches = $leagueController->getUpcomingMatches($id);
+    echo json_encode(['matches' => $upcomingMatches]);
 });
 
 // 404 handler
