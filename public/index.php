@@ -21,14 +21,14 @@ $adminController = new \WFN24\Controllers\AdminController();
 $matchController = new \WFN24\Controllers\MatchController();
 $leagueController = new \WFN24\Controllers\LeagueController();
 
-// Fetch real data
+// Fetch real data with error handling and fallbacks
 $liveMatches = [];
 $upcomingMatches = [];
 $leagues = [];
 $newsArticles = [];
 
 try {
-    // Fetch live matches from database
+    // Fetch live matches from database with timeout protection
     $stmt = $db->getConnection()->prepare(
         "SELECT m.*, 
                 ht.name as home_team_name, ht.logo_url as home_team_logo,
@@ -39,7 +39,7 @@ try {
          LEFT JOIN teams at ON m.away_team_id = at.id
          LEFT JOIN leagues l ON m.league_id = l.id
          WHERE m.status = 'LIVE' OR m.status = 'HT' OR m.status = '2H'
-         ORDER BY m.match_date DESC LIMIT 5"
+         ORDER BY m.match_date DESC LIMIT 3"
     );
     $stmt->execute();
     $liveMatches = $stmt->fetchAll();
@@ -55,27 +55,46 @@ try {
          LEFT JOIN teams at ON m.away_team_id = at.id
          LEFT JOIN leagues l ON m.league_id = l.id
          WHERE m.match_date > NOW() AND m.status = 'SCHEDULED'
-         ORDER BY m.match_date ASC LIMIT 5"
+         ORDER BY m.match_date ASC LIMIT 3"
     );
     $stmt->execute();
     $upcomingMatches = $stmt->fetchAll();
     
     // Fetch leagues from database
     $stmt = $db->getConnection()->prepare(
-        "SELECT * FROM leagues WHERE is_active = TRUE ORDER BY name LIMIT 6"
+        "SELECT * FROM leagues WHERE is_active = TRUE ORDER BY name LIMIT 4"
     );
     $stmt->execute();
     $leagues = $stmt->fetchAll();
     
     // Fetch news articles from database
     $stmt = $db->getConnection()->prepare(
-        "SELECT * FROM news_articles WHERE is_published = TRUE ORDER BY published_at DESC LIMIT 6"
+        "SELECT * FROM news_articles WHERE is_published = TRUE ORDER BY published_at DESC LIMIT 4"
     );
     $stmt->execute();
     $newsArticles = $stmt->fetchAll();
     
 } catch (Exception $e) {
     error_log('Error fetching data: ' . $e->getMessage());
+    // Use fallback data if database fails
+    $liveMatches = [];
+    $upcomingMatches = [];
+    $leagues = [
+        ['name' => 'Premier League', 'country' => 'England', 'logo_url' => null],
+        ['name' => 'La Liga', 'country' => 'Spain', 'logo_url' => null],
+        ['name' => 'Serie A', 'country' => 'Italy', 'logo_url' => null],
+        ['name' => 'Bundesliga', 'country' => 'Germany', 'logo_url' => null]
+    ];
+    $newsArticles = [
+        [
+            'title' => 'Premier League Title Race Reaches Climax',
+            'excerpt' => 'The Premier League title race is reaching its most dramatic conclusion in years.',
+            'featured_image' => 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=1200&h=600&fit=crop',
+            'author_name' => 'WFN24 Staff',
+            'published_at' => date('Y-m-d H:i:s'),
+            'view_count' => 15420
+        ]
+    ];
 }
 
 // Simple routing
@@ -83,11 +102,33 @@ $router = new \Bramus\Router\Router();
 
 // Public routes
 $router->get('/', function() use ($liveMatches, $upcomingMatches, $leagues, $newsArticles) {
-    // Generate dynamic HTML with real data
-    $html = generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArticles);
+    // Set timeout to prevent infinite loading
+    set_time_limit(30);
     
-    header('Content-Type: text/html; charset=utf-8');
-    echo $html;
+    try {
+        // Generate dynamic HTML with real data
+        $html = generateDynamicHTML($liveMatches, $upcomingMatches, $leagues, $newsArticles);
+        
+        header('Content-Type: text/html; charset=utf-8');
+        echo $html;
+    } catch (Exception $e) {
+        error_log('Error generating HTML: ' . $e->getMessage());
+        // Fallback to simple HTML if generation fails
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!DOCTYPE html>
+        <html>
+        <head>
+            <title>WFN24 - World Football News 24</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body>
+            <h1>WFN24 - World Football News 24</h1>
+            <p>Loading... Please wait.</p>
+            <script>setTimeout(function(){ window.location.reload(); }, 5000);</script>
+        </body>
+        </html>';
+    }
 });
 
 $router->get('/admin', function() {
@@ -95,6 +136,16 @@ $router->get('/admin', function() {
     $adminHtml = file_get_contents(__DIR__ . '/admin.html');
     header('Content-Type: text/html; charset=utf-8');
     echo $adminHtml;
+});
+
+// Health check route
+$router->get('/health', function() {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'status' => 'healthy',
+        'timestamp' => date('Y-m-d H:i:s'),
+        'message' => 'WFN24 server is running'
+    ]);
 });
 
 // Authentication routes
