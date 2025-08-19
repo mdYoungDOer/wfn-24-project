@@ -608,7 +608,7 @@ class AdminController
     {
         try {
             $categoryModel = new Category();
-            $categories = $categoryModel->getAll();
+            $categories = $categoryModel->all();
 
             return json_encode([
                 'success' => true,
@@ -627,7 +627,7 @@ class AdminController
     {
         try {
             $leagueModel = new League();
-            $leagues = $leagueModel->getAll();
+            $leagues = $leagueModel->all();
 
             return json_encode([
                 'success' => true,
