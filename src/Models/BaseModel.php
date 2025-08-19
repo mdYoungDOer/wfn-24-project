@@ -134,6 +134,64 @@ abstract class BaseModel
         return $stmt->fetchAll();
     }
 
+    public function getAllWithPagination(int $page = 1, int $limit = 10, string $search = ''): array
+    {
+        $offset = ($page - 1) * $limit;
+        
+        $whereClause = '';
+        $params = [];
+        
+        if (!empty($search)) {
+            $searchConditions = [];
+            foreach ($this->fillable as $column) {
+                $searchConditions[] = "{$column} ILIKE :search_{$column}";
+                $params["search_{$column}"] = "%{$search}%";
+            }
+            $whereClause = 'WHERE ' . implode(' OR ', $searchConditions);
+        }
+        
+        // Get total count
+        $countSql = "SELECT COUNT(*) as total FROM {$this->table} {$whereClause}";
+        $countStmt = $this->db->getConnection()->prepare($countSql);
+        $countStmt->execute($params);
+        $total = $countStmt->fetch()['total'];
+        
+        // Get paginated data
+        $sql = "SELECT * FROM {$this->table} {$whereClause} ORDER BY {$this->primaryKey} DESC LIMIT :limit OFFSET :offset";
+        $stmt = $this->db->getConnection()->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        
+        $stmt->execute();
+        $data = $stmt->fetchAll();
+        
+        return $data;
+    }
+
+    public function getTotalCount(string $search = ''): int
+    {
+        $whereClause = '';
+        $params = [];
+        
+        if (!empty($search)) {
+            $searchConditions = [];
+            foreach ($this->fillable as $column) {
+                $searchConditions[] = "{$column} ILIKE :search_{$column}";
+                $params["search_{$column}"] = "%{$search}%";
+            }
+            $whereClause = 'WHERE ' . implode(' OR ', $searchConditions);
+        }
+        
+        $countSql = "SELECT COUNT(*) as total FROM {$this->table} {$whereClause}";
+        $countStmt = $this->db->getConnection()->prepare($countSql);
+        $countStmt->execute($params);
+        return (int) $countStmt->fetch()['total'];
+    }
+
     protected function filterFillable(array $data): array
     {
         return array_intersect_key($data, array_flip($this->fillable));

@@ -96,6 +96,58 @@ class FootballMatch extends BaseModel
         return $stmt->fetchAll();
     }
 
+    public function getAllWithPagination(int $page = 1, int $limit = 10, string $status = ''): array
+    {
+        $offset = ($page - 1) * $limit;
+        
+        $whereClause = '';
+        $params = [];
+        
+        if (!empty($status)) {
+            $whereClause = 'WHERE m.status = :status';
+            $params['status'] = $status;
+        }
+        
+        $sql = "SELECT m.*, 
+                       ht.name as home_team_name, ht.logo_url as home_team_logo,
+                       at.name as away_team_name, at.logo_url as away_team_logo,
+                       l.name as league_name, l.country as league_country
+                FROM {$this->table} m
+                LEFT JOIN teams ht ON m.home_team_id = ht.id
+                LEFT JOIN teams at ON m.away_team_id = at.id
+                LEFT JOIN leagues l ON m.league_id = l.id
+                {$whereClause}
+                ORDER BY m.match_date DESC, m.kickoff_time DESC
+                LIMIT :limit OFFSET :offset";
+        
+        $stmt = $this->db->getConnection()->prepare($sql);
+        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
+        
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function getTotalCount(string $status = ''): int
+    {
+        $whereClause = '';
+        $params = [];
+        
+        if (!empty($status)) {
+            $whereClause = 'WHERE status = :status';
+            $params['status'] = $status;
+        }
+        
+        $countSql = "SELECT COUNT(*) as total FROM {$this->table} {$whereClause}";
+        $countStmt = $this->db->getConnection()->prepare($countSql);
+        $countStmt->execute($params);
+        return (int) $countStmt->fetch()['total'];
+    }
+
     public function getMatchWithDetails(int $id): ?array
     {
         $sql = "SELECT m.*, 
