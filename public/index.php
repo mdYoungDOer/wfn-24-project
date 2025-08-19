@@ -460,6 +460,19 @@ $router->get('/api/admin/leagues', function() use ($authController, $adminContro
     echo $adminController->getLeagues();
 });
 
+// Image Upload endpoint
+$router->post('/api/admin/upload', function() use ($authController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    // Include the upload handler
+    include __DIR__ . '/upload.php';
+});
+
 // API routes
 $router->get('/health', function() {
     header('Content-Type: application/json');

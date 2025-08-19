@@ -36,7 +36,14 @@ class AdminController
 
             return json_encode([
                 'success' => true,
-                'data' => $stats
+                'stats' => [
+                    'total_articles' => $stats['total_articles'],
+                    'live_matches' => $stats['live_matches'],
+                    'total_users' => $stats['total_users'],
+                    'total_teams' => $stats['total_teams']
+                ],
+                'recent_articles' => $stats['recent_articles'],
+                'recent_activity' => $stats['recent_activity']
             ]);
         } catch (\Exception $e) {
             return json_encode([
@@ -56,13 +63,11 @@ class AdminController
 
             return json_encode([
                 'success' => true,
-                'data' => [
-                    'articles' => $articles,
-                    'total' => $total,
-                    'page' => $page,
-                    'limit' => $limit,
-                    'total_pages' => ceil($total / $limit)
-                ]
+                'articles' => $articles,
+                'total' => $total,
+                'page' => $page,
+                'limit' => $limit,
+                'total_pages' => ceil($total / $limit)
             ]);
         } catch (\Exception $e) {
             return json_encode([
@@ -195,13 +200,11 @@ class AdminController
 
             return json_encode([
                 'success' => true,
-                'data' => [
-                    'matches' => $matches,
-                    'total' => $total,
-                    'page' => $page,
-                    'limit' => $limit,
-                    'total_pages' => ceil($total / $limit)
-                ]
+                'matches' => $matches,
+                'total' => $total,
+                'page' => $page,
+                'limit' => $limit,
+                'total_pages' => ceil($total / $limit)
             ]);
         } catch (\Exception $e) {
             return json_encode([
@@ -313,13 +316,11 @@ class AdminController
 
             return json_encode([
                 'success' => true,
-                'data' => [
-                    'teams' => $teams,
-                    'total' => $total,
-                    'page' => $page,
-                    'limit' => $limit,
-                    'total_pages' => ceil($total / $limit)
-                ]
+                'teams' => $teams,
+                'total' => $total,
+                'page' => $page,
+                'limit' => $limit,
+                'total_pages' => ceil($total / $limit)
             ]);
         } catch (\Exception $e) {
             return json_encode([
@@ -431,13 +432,11 @@ class AdminController
 
             return json_encode([
                 'success' => true,
-                'data' => [
-                    'users' => $users,
-                    'total' => $total,
-                    'page' => $page,
-                    'limit' => $limit,
-                    'total_pages' => ceil($total / $limit)
-                ]
+                'users' => $users,
+                'total' => $total,
+                'page' => $page,
+                'limit' => $limit,
+                'total_pages' => ceil($total / $limit)
             ]);
         } catch (\Exception $e) {
             return json_encode([
