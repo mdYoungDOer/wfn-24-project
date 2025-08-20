@@ -622,6 +622,144 @@ class AdminController
         }
     }
 
+    // Categories Management
+    public function getCategoriesList($page = 1, $limit = 10, $search = '')
+    {
+        try {
+            $categoryModel = new Category();
+            $categories = $categoryModel->getAllWithPagination($page, $limit, $search);
+            $total = $categoryModel->getTotalCount($search);
+
+            return json_encode([
+                'success' => true,
+                'categories' => $categories,
+                'total' => $total,
+                'page' => $page,
+                'limit' => $limit,
+                'total_pages' => ceil($total / $limit)
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function createCategory($data)
+    {
+        try {
+            $categoryModel = new Category();
+            
+            if (empty($data['name'])) {
+                throw new \Exception('Category name is required');
+            }
+
+            $categoryData = [
+                'name' => $data['name'],
+                'description' => $data['description'] ?? '',
+                'color' => $data['color'] ?? '#e41e5b',
+                'icon' => $data['icon'] ?? 'folder',
+                'is_active' => $data['is_active'] ?? true,
+                'sort_order' => $data['sort_order'] ?? 0
+            ];
+
+            $categoryId = $categoryModel->createCategory($categoryData);
+
+            return json_encode([
+                'success' => true,
+                'data' => ['id' => $categoryId],
+                'message' => 'Category created successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function updateCategory($id, $data)
+    {
+        try {
+            $categoryModel = new Category();
+            
+            if (empty($data['name'])) {
+                throw new \Exception('Category name is required');
+            }
+
+            $categoryData = [
+                'name' => $data['name'],
+                'description' => $data['description'] ?? '',
+                'color' => $data['color'] ?? '#e41e5b',
+                'icon' => $data['icon'] ?? 'folder',
+                'is_active' => $data['is_active'] ?? true,
+                'sort_order' => $data['sort_order'] ?? 0
+            ];
+
+            $categoryModel->updateCategory($id, $categoryData);
+
+            return json_encode([
+                'success' => true,
+                'message' => 'Category updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function deleteCategory($id)
+    {
+        try {
+            $categoryModel = new Category();
+            
+            // Check if category has articles
+            $stmt = $this->db->query("SELECT COUNT(*) as count FROM news_articles WHERE category_id = ?", [$id]);
+            $result = $stmt->fetch();
+            
+            if ($result['count'] > 0) {
+                throw new \Exception('Cannot delete category that has articles. Please reassign articles first.');
+            }
+
+            $categoryModel->delete($id);
+
+            return json_encode([
+                'success' => true,
+                'message' => 'Category deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getCategory($id)
+    {
+        try {
+            $categoryModel = new Category();
+            $category = $categoryModel->find($id);
+
+            if (!$category) {
+                throw new \Exception('Category not found');
+            }
+
+            return json_encode([
+                'success' => true,
+                'data' => $category
+            ]);
+        } catch (\Exception $e) {
+            return json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
     // Get leagues for match/team forms
     public function getLeagues()
     {

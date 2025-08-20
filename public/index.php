@@ -472,6 +472,73 @@ $router->get('/api/admin/categories', function() use ($authController, $adminCon
     echo $adminController->getCategories();
 });
 
+// Categories Management
+$router->get('/api/admin/categories/list', function() use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    $page = $_GET['page'] ?? 1;
+    $limit = $_GET['limit'] ?? 10;
+    $search = $_GET['search'] ?? '';
+    
+    header('Content-Type: application/json');
+    echo $adminController->getCategoriesList($page, $limit, $search);
+});
+
+$router->get('/api/admin/categories/{id}', function($id) use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    header('Content-Type: application/json');
+    echo $adminController->getCategory($id);
+});
+
+$router->post('/api/admin/categories', function() use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    header('Content-Type: application/json');
+    echo $adminController->createCategory($input);
+});
+
+$router->put('/api/admin/categories/{id}', function($id) use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    header('Content-Type: application/json');
+    echo $adminController->updateCategory($id, $input);
+});
+
+$router->delete('/api/admin/categories/{id}', function($id) use ($authController, $adminController) {
+    if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
+        header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    header('Content-Type: application/json');
+    echo $adminController->deleteCategory($id);
+});
+
 $router->get('/api/admin/leagues', function() use ($authController, $adminController) {
     if (!$authController->isAuthenticated() || !$authController->isAdmin()) {
         header('Content-Type: application/json');

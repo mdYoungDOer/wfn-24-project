@@ -1,0 +1,5 @@
+[33mdc07bba[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Fix admin CRUD operations and improve error handling - Fixed admin-crud.js with proper error handling and complete CRUD functionality - Enhanced admin.js with better error handling and response validation - Fixed AdminController response format for categories and leagues - Added comprehensive test script for admin system validation - Improved session management and authentication checks - Fixed API endpoint responses and error handling - Enhanced file upload functionality and directory management
+[33m34c9697[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Fix Database class Exception namespace issue
+[33m0dc8052[m Fix leagues and categories API endpoints - use correct model methods
+[33m1fd9240[m Add debug scripts for testing admin authentication and API endpoints
+[33me27a948[m Fix Phase 1 Implementation - Add missing model methods and fix admin dashboard CRUD

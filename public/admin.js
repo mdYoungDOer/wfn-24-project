@@ -172,6 +172,9 @@ class AdminDashboard {
             case 'users':
                 await this.loadUsers();
                 break;
+            case 'categories':
+                await this.loadCategories();
+                break;
         }
     }
 
@@ -602,6 +605,92 @@ class AdminDashboard {
                                     </td>
                                 </tr>
                             `}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+
+    async loadCategories() {
+        try {
+            const response = await fetch('/api/admin/categories/list');
+            const data = await response.json();
+            
+            if (data.success) {
+                this.displayCategories(data.categories);
+            } else {
+                this.showError('Failed to load categories: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error loading categories:', error);
+            this.showError('Failed to load categories');
+        }
+    }
+
+    displayCategories(categories) {
+        const container = document.getElementById('categories-container');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Category Management</h2>
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex space-x-4">
+                        <input type="text" id="categorySearch" placeholder="Search categories..." class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <button onclick="filterCategories()" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition-colors duration-200">Search</button>
+                    </div>
+                    <button onclick="createCategory()" class="bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity duration-200 flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <span>Add Category</span>
+                    </button>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Articles</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            ${categories.map(category => `
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style="background-color: ${category.color || '#e41e5b'}">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                                </svg>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">${category.name}</div>
+                                                <div class="text-sm text-gray-500">${category.icon || 'folder'}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${category.slug}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">${category.description || 'No description'}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${category.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                            ${category.is_active ? 'Active' : 'Inactive'}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${category.article_count || 0}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button onclick="editCategory(${category.id})" class="text-primary hover:text-secondary mr-3">Edit</button>
+                                        <button onclick="deleteCategory(${category.id})" class="text-red-600 hover:text-red-800">Delete</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
                         </tbody>
                     </table>
                 </div>

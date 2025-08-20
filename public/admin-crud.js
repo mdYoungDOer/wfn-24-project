@@ -490,6 +490,178 @@ class AdminCRUD {
         }
     }
 
+    // Category Management Methods
+    async createCategory() {
+        const modal = this.createCategoryModal();
+        document.body.appendChild(modal);
+        this.setupCategoryForm(modal);
+    }
+
+    createCategoryModal() {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-900">Create New Category</h2>
+                    <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form id="categoryForm" class="p-6 space-y-6">
+                    <div>
+                        <label for="categoryName" class="block text-sm font-medium text-gray-700 mb-2">Category Name *</label>
+                        <input type="text" id="categoryName" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter category name">
+                    </div>
+                    <div>
+                        <label for="categoryDescription" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea id="categoryDescription" name="description" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter category description"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="categoryColor" class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                            <input type="color" id="categoryColor" name="color" value="#e41e5b" class="w-full h-12 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label for="categoryIcon" class="block text-sm font-medium text-gray-700 mb-2">Icon</label>
+                            <select id="categoryIcon" name="icon" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="folder">📁 Folder</option>
+                                <option value="newspaper">📰 Newspaper</option>
+                                <option value="trophy">🏆 Trophy</option>
+                                <option value="star">⭐ Star</option>
+                                <option value="fire">🔥 Fire</option>
+                                <option value="heart">❤️ Heart</option>
+                                <option value="bolt">⚡ Bolt</option>
+                                <option value="flag">🏁 Flag</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="categoryActive" name="is_active" checked class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+                        <label for="categoryActive" class="ml-2 text-sm text-gray-700">Active</label>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="this.closest('.fixed').remove()" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:opacity-90 transition-opacity duration-200">Create Category</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        return modal;
+    }
+
+    setupCategoryForm(modal) {
+        const form = modal.querySelector('#categoryForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await this.saveCategory(form);
+        });
+    }
+
+    async saveCategory(form, categoryId = null) {
+        const formData = new FormData(form);
+        const data = {
+            name: formData.get('name'),
+            description: formData.get('description'),
+            color: formData.get('color'),
+            icon: formData.get('icon'),
+            is_active: formData.get('is_active') === 'on'
+        };
+
+        try {
+            const url = categoryId ? `/api/admin/categories/${categoryId}` : '/api/admin/categories';
+            const method = categoryId ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showSuccess(categoryId ? 'Category updated successfully' : 'Category created successfully');
+                form.closest('.fixed').remove();
+                if (adminDashboard && typeof adminDashboard.loadCategories === 'function') {
+                    adminDashboard.loadCategories();
+                }
+            } else {
+                this.showError(result.error || 'Failed to save category');
+            }
+        } catch (error) {
+            this.showError('Error saving category: ' + error.message);
+        }
+    }
+
+    async editCategory(id) {
+        try {
+            const response = await fetch(`/api/admin/categories/${id}`);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            const data = await response.json();
+            
+            if (data.success) {
+                const category = data.data;
+                const modal = this.createCategoryModal();
+                modal.querySelector('h2').textContent = 'Edit Category';
+                modal.querySelector('button[type="submit"]').textContent = 'Update Category';
+                
+                // Populate form fields
+                modal.querySelector('#categoryName').value = category.name;
+                modal.querySelector('#categoryDescription').value = category.description || '';
+                modal.querySelector('#categoryColor').value = category.color || '#e41e5b';
+                modal.querySelector('#categoryIcon').value = category.icon || 'folder';
+                modal.querySelector('#categoryActive').checked = category.is_active;
+                
+                document.body.appendChild(modal);
+                this.setupCategoryForm(modal, id);
+            } else {
+                this.showError(data.error || 'Failed to load category');
+            }
+        } catch (error) {
+            this.showError('Error loading category: ' + error.message);
+        }
+    }
+
+    async deleteCategory(id) {
+        if (!confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/admin/categories/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showSuccess('Category deleted successfully');
+                if (adminDashboard && typeof adminDashboard.loadCategories === 'function') {
+                    adminDashboard.loadCategories();
+                }
+            } else {
+                this.showError(result.error || 'Failed to delete category');
+            }
+        } catch (error) {
+            this.showError('Error deleting category: ' + error.message);
+        }
+    }
+
     handleImageUpload(input) {
         const file = input.files[0];
         if (!file) return;
@@ -862,5 +1034,24 @@ function editTeam(id) {
 function deleteTeam(id) {
     if (adminCRUD) {
         adminCRUD.deleteTeam(id);
+    }
+}
+
+// Category CRUD functions
+function createCategory() {
+    if (adminCRUD) {
+        adminCRUD.createCategory();
+    }
+}
+
+function editCategory(id) {
+    if (adminCRUD) {
+        adminCRUD.editCategory(id);
+    }
+}
+
+function deleteCategory(id) {
+    if (adminCRUD) {
+        adminCRUD.deleteCategory(id);
     }
 }
