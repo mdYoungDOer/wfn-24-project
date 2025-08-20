@@ -31,6 +31,10 @@ class AdminDashboard {
     async checkAuthStatus() {
         try {
             const response = await fetch('/auth/user');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const data = await response.json();
             
             if (data.user && data.user.is_admin) {

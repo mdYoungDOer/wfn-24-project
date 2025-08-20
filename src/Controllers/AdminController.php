@@ -612,7 +612,7 @@ class AdminController
 
             return json_encode([
                 'success' => true,
-                'data' => $categories
+                'categories' => $categories
             ]);
         } catch (\Exception $e) {
             return json_encode([
@@ -631,7 +631,7 @@ class AdminController
 
             return json_encode([
                 'success' => true,
-                'data' => $leagues
+                'leagues' => $leagues
             ]);
         } catch (\Exception $e) {
             return json_encode([
